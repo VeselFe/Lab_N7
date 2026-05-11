@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="99b7b21c-d71e-4929-9b5b-1785a31ec70d" name="Changes" comment="Версия на защиту">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/Client.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/FileHandler/ScriptHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/clientTerminal/ClientConsoleHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/clientTerminal/PersonReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/clientTerminal/RequestCreator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/clientTerminal/StudyGroupReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/clientTerminal/UpdateReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/network/NetworkManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/ru/itmo/client/network/ResponseReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/commonNet/Request.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/commonNet/Response.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/fileManagement/FileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/fileManagement/GroupsFileManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/interfaces/IO_Handler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/interfaces/IdGeneratorInterface.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/interfaces/InputHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/interfaces/OutputHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/model/Coordinates.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/model/Person.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/model/StudyGroup.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myEnums/Commands.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myEnums/Country.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myEnums/FormOfEducation.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myEnums/Semester.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myExceptions/CommandException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myExceptions/ConnectionException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myExceptions/CreationException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myExceptions/FileManagerException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myExceptions/ResponseException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myRecords/FieldDescriptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myRecords/Lab5FieldDescriptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/myRecords/UpdatedFieldDescriptor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/java/ru/itmo/lab/common/terminal/AbstractConsoleHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/Server.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/ioHandlers/CommandResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/ioHandlers/ServerConsoleHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/CollectionManager.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/StudyGroupByNameComparator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/StudyGroupByStudentsComparator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/generators/BasicGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/serverFileManagers/Launcher.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/collection/serverFileManagers/LoadCollection.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/CommandProccessor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/ExitCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/Invoker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/RequestAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/SaveCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/manager/serverLogic/ServerCommandArgs.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverInterfaces/Command.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverInterfaces/CommandArgs.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverInterfaces/ExecuteResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverInterfaces/InvokerActions.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverInterfaces/ServerCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverNetManager/RequestReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/serverNetManager/ResponseSender.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/ClearCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/FilterBySemesterEnum.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/FilterStartsWithName.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/HelpCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/InfoCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/InsertElCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/PrintAscending.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/RemoveCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/RemoveGreater.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/RemoveLower.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/RomoveLowerKey.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/ShowCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/java/ru/itmo/server/сommand/UpdateIdCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/resources/logback.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/itmo/lab/Main.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Exception" />
+        <option value="Enum" />
+        <option value="Record" />
+        <option value="Interface" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <branch-grouping />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;VeselFe&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/VeselFe/Lab_N7.git",
+    "accountId": "6893878b-865d-4eb4-86ae-6389062a1ac9"
+  }
+}]]></component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="3BirQCLXsQ6HWDdRQVKlQVRjbeP" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Client.executor": "Run",
+    "Application.Server.executor": "Debug",
+    "Application.ru.itmo.client.Client.executor": "Run",
+    "Maven.lab6 [clean].executor": "Run",
+    "Maven.lab6 [compile].executor": "Run",
+    "Maven.lab6 [install].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_directory_selection": "C:/Users/Aero/Documents/ИТМО_Local/Lab_N6/Lab_N6/client/src/main/java/ru/itmo/client/clientTerminal",
+    "last_opened_file_path": "C:/Users/Aero/Documents/ИТМО_Local/Lab_N7",
+    "onboarding.tips.debug.path": "C:/Users/Aero/Documents/ИТМО_Local/Прога/Лаба №6/Lab_N6/common/src/main/java/ru/itmo/lab/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "vcs.Subversion.SSH",
+    "settings.editor.splitter.proportion": "0.25488532"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Aero\Documents\ИТМО_Local\Прога\Лаба №6\Lab_N6\common\src" />
+      <recent name="C:\Users\Aero\Documents\ИТМО_Local\Прога\Лаба №6\Lab_N6\server\src" />
+    </key>
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="ru.itmo.client.clientTerminal" />
+      <recent name="ru.itmo.server.manager.collection.serverFileManagers" />
+      <recent name="ru.itmo.server.manager.collection" />
+      <recent name="ru.itmo.server.serverInterfaces" />
+      <recent name="ru.itmo.lab.interfaces" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Server">
+    <configuration name="Client" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="ru.itmo.client.Client" />
+      <module name="client" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.itmo.lab.manager.collection.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="ru.itmo.server.Server" />
+      <module name="server" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.itmo.lab.manager.collection.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="Lab_N6" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Client" />
+      <item itemvalue="Application.Server" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Server" />
+        <item itemvalue="Application.Client" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-cffe25b9f5b3-intellij.indexing.shared.core-IU-253.28294.334" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>C:\Users\Aero\AppData\Roaming\Subversion</configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="99b7b21c-d71e-4929-9b5b-1785a31ec70d" name="Changes" comment="" />
+      <created>1774982717427</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1774982717427</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Файлы распределены в maven. Написано подключение к серверу клиента">
+      <option name="closed" value="true" />
+      <created>1775002979625</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1775002979625</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Файлы распределены в maven. Написано подключение к серверу клиента">
+      <option name="closed" value="true" />
+      <created>1775002987585</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775002987585</updated>
+    </task>
+    <task id="LOCAL-00003" summary="связь клиент-сервер">
+      <option name="closed" value="true" />
+      <created>1775004968232</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1775004968232</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Написано чтение ввода на клиенте">
+      <option name="closed" value="true" />
+      <created>1775068701457</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1775068701457</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Написано 70% клиентской консоли">
+      <option name="closed" value="true" />
+      <created>1775081204419</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1775081204419</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Написано 90% клиентской консоли">
+      <option name="closed" value="true" />
+      <created>1775088599229</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1775088599229</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Серверная обработка запросов, команд, формирование ответов">
+      <option name="closed" value="true" />
+      <created>1775941869558</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1775941869559</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Начинаем отлаживать соединение клиент-сервер">
+      <option name="closed" value="true" />
+      <created>1775950977865</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1775950977865</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Поправил main клиента">
+      <option name="closed" value="true" />
+      <created>1775951600597</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1775951600597</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Исправлена отправка данных на клиенте. Исправлен прием данных на сервере.">
+      <option name="closed" value="true" />
+      <created>1775955384769</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1775955384769</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Написана отправка ответа с сервера">
+      <option name="closed" value="true" />
+      <created>1775956024256</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1775956024256</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Исправлена обработка исключения с потерей клиенат">
+      <option name="closed" value="true" />
+      <created>1775956419156</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1775956419156</updated>
+    </task>
+    <task id="LOCAL-00013" summary="RequestCreator(Client) вынесен в отдельный файл">
+      <option name="closed" value="true" />
+      <created>1775958201249</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1775958201249</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Настроена передача запросов-ответов в потоках">
+      <option name="closed" value="true" />
+      <created>1776033950133</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1776033950133</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Отлажена передаче запрос-ответ между сервером и клиентом. Версия 1.0">
+      <option name="closed" value="true" />
+      <created>1776116286695</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1776116286695</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Настроены сохранение коллекции и разъединение с клиентом">
+      <option name="closed" value="true" />
+      <created>1776200656707</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1776200656707</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Проверены все команды кроме updated. Исправлена валидация входных значений на клиенте">
+      <option name="closed" value="true" />
+      <created>1776205629638</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1776205629638</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Все команды работают. Изменен способ передачи коллекции клиенту">
+      <option name="closed" value="true" />
+      <created>1776245997612</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1776245997612</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Stream-API: filterSem">
+      <option name="closed" value="true" />
+      <created>1776246983171</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1776246983171</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Stream-API: filteStartsWithName">
+      <option name="closed" value="true" />
+      <created>1776247650149</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1776247650149</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Stream-API: help">
+      <option name="closed" value="true" />
+      <created>1776248505413</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1776248505413</updated>
+    </task>
+    <task id="LOCAL-00022" summary="Stream-API: info, printAscending">
+      <option name="closed" value="true" />
+      <created>1776248774936</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1776248774936</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Stream-API: remove Gr/Low">
+      <option name="closed" value="true" />
+      <created>1776249926317</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1776249926317</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Stream-API: removeLowerKey">
+      <option name="closed" value="true" />
+      <created>1776251367185</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1776251367185</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Stream-API: Show">
+      <option name="closed" value="true" />
+      <created>1776251885171</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1776251885171</updated>
+    </task>
+    <task id="LOCAL-00026" summary="Stream-API: RequestCreator">
+      <option name="closed" value="true" />
+      <created>1776252522034</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1776252522034</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Перенес команды на сервер">
+      <option name="closed" value="true" />
+      <created>1776255239234</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1776255239234</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Отредактированы pom.xml; Изменен пакет клиента">
+      <option name="closed" value="true" />
+      <created>1776256581386</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1776256581386</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Отредактированы имена пакетов">
+      <option name="closed" value="true" />
+      <created>1776256792202</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1776256792202</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Предзащитная верся">
+      <option name="closed" value="true" />
+      <created>1776261599685</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1776261599685</updated>
+    </task>
+    <task id="LOCAL-00031" summary="Протокол: 1 команда - 1 подключение">
+      <option name="closed" value="true" />
+      <created>1776268197483</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1776268197483</updated>
+    </task>
+    <task id="LOCAL-00032" summary="Изменено: убран опрос режима вывод коллекции после каждой команды">
+      <option name="closed" value="true" />
+      <created>1776270826226</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1776270826226</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Постзащитная версия">
+      <option name="closed" value="true" />
+      <created>1776281719960</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1776281719961</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Исправлена архитектура сервера">
+      <option name="closed" value="true" />
+      <created>1777333920595</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1777333920595</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Исправлена общая архитектура клиента">
+      <option name="closed" value="true" />
+      <created>1777425240185</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1777425240186</updated>
+    </task>
+    <task id="LOCAL-00036" summary="maven: перераспределены файловые менеджеры">
+      <option name="closed" value="true" />
+      <created>1777428193160</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1777428193169</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Добавлено исполнение скрипта на клиенте">
+      <option name="closed" value="true" />
+      <created>1777464431219</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1777464431219</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Предзащитная версия V2">
+      <option name="closed" value="true" />
+      <created>1777466448023</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1777466448023</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Версия на защиту">
+      <option name="closed" value="true" />
+      <created>1777476039205</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1777476039205</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="User">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="*" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Отлажена передаче запрос-ответ между сервером и клиентом. Версия 1.0" />
+    <MESSAGE value="Настроены сохранение коллекции и разъединение с клиентом" />
+    <MESSAGE value="Проверены все команды кроме updated. Исправлена валидация входных значений на клиенте" />
+    <MESSAGE value="Все команды работают. Изменен способ передачи коллекции клиенту" />
+    <MESSAGE value="Stream-API: filterSem" />
+    <MESSAGE value="Stream-API: filteStartsWithName" />
+    <MESSAGE value="Stream-API: help" />
+    <MESSAGE value="Stream-API: info, printAscending" />
+    <MESSAGE value="Stream-API: remove Gr/Low" />
+    <MESSAGE value="Stream-API: removeLowerKey" />
+    <MESSAGE value="Stream-API: Show" />
+    <MESSAGE value="Stream-API: RequestCreator" />
+    <MESSAGE value="Перенес команды на сервер" />
+    <MESSAGE value="Отредактированы pom.xml; Изменен пакет клиента" />
+    <MESSAGE value="Отредактированы имена пакетов" />
+    <MESSAGE value="Предзащитная верся" />
+    <MESSAGE value="Протокол: 1 команда - 1 подключение" />
+    <MESSAGE value="Изменено: убран опрос режима вывод коллекции после каждой команды" />
+    <MESSAGE value="Постзащитная версия" />
+    <MESSAGE value="Исправлена архитектура сервера" />
+    <MESSAGE value="Исправлена общая архитектура клиента" />
+    <MESSAGE value="maven: перераспределены файловые менеджеры" />
+    <MESSAGE value="Добавлено исполнение скрипта на клиенте" />
+    <MESSAGE value="Предзащитная версия V2" />
+    <MESSAGE value="Версия на защиту" />
+    <option name="LAST_COMMIT_MESSAGE" value="Версия на защиту" />
+  </component>
+</project>

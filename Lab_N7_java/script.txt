@@ -1,0 +1,13 @@
+remove_key 44
+insert_element 44
+ test_script
+ 18 -24.3
+ 1
+ 201
+ DISTANCE_EDUCATION
+ FIRST
+ Foma
+ 1988-12-02T17:23:12
+ 71
+
+ RUSSIA
