@@ -6,7 +6,6 @@ import ru.itmo.server.dao.UserDAO;
 import ru.itmo.server.db.DatabaseHandler;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
 import ru.itmo.server.serverInterfaces.InvokerActions;
-import ru.itmo.server.manager.collection.generators.BasicGenerator;
 import ru.itmo.server.ioHandlers.ServerConsoleHandler;
 import ru.itmo.server.manager.collection.CollectionManager;
 import ru.itmo.lab.common.fileManagement.GroupsFileManager;
@@ -134,16 +133,14 @@ public class Server
     {
         logger.info("Потоки ввода-вывода инициализированы.");
         CommandProccessor.restartServerProgramm();
-
-        try(
-                OutputStream os = clientSocket.getOutputStream();
-                ObjectOutputStream output = new ObjectOutputStream(os);
-                InputStream is = clientSocket.getInputStream();
-                ObjectInputStream input = new ObjectInputStream(is);
-        )
+        while( !clientSocket.isClosed() )
         {
-            while( !clientSocket.isClosed() )
+            try
             {
+                InputStream is = clientSocket.getInputStream();
+                OutputStream os = clientSocket.getOutputStream();
+                ObjectInputStream input = new ObjectInputStream(is);
+
                 // логика обработки поступившей информации
                 // читаем запрос
                 Request request = RequestReader.read(input);
@@ -158,31 +155,48 @@ public class Server
                 logger.info("Message: " + response.getMessage() + ";");
                 logger.info("<Конец запроса>");
 
+                ObjectOutputStream output = new ObjectOutputStream(os);
                 // отправляем обратно ответ
                 ResponseSender.sendResponse(output, response);
                 logger.info("Ответ отправлен!\n");
+                break;
+            }
+            catch( ClassNotFoundException e )
+            {
+                logger.error("Некорректные полученные данные");
+            }
+            catch( EOFException e )
+            {
+                logger.info("Клиент завершил сессию.");
+                break;
+            }
+            catch( SocketException e )
+            {
+                logger.error("Соединение с клиентом потеряно.");
+                break;
+            }
+            catch( IOException e )
+            {
+                logger.error("Ошибка потоков ввода-вывода: " + e.getMessage());
+                break;
+            }
+            catch ( Exception e )
+            {
+                logger.error("Неизвестная ошибка при обработке запроса: " + e.getMessage());
             }
         }
-        catch( ClassNotFoundException e )
+        try
         {
-            logger.error("Некорректные полученные данные");
+            if (!clientSocket.isClosed())
+            {
+                clientSocket.close();
+            }
         }
-        catch( EOFException e )
+        catch (IOException e)
         {
-            logger.info("Клиент завершил сессию.");
+            logger.error("Ошибка при закрытии сокета.");
         }
-        catch( SocketException e )
-        {
-            logger.error("Соединение с клиентом потеряно.");
-        }
-        catch( IOException e )
-        {
-            logger.error("Ошибка потоков ввода-вывода: " + e.getMessage());
-        }
-        catch ( Exception e )
-        {
-            logger.error("Неизвестная ошибка при обработке запроса: " + e.getMessage());
-        }
+        logger.info("Сессия завершена!\n");
     }
     public static Connection getDB_Connection()
     {
@@ -201,7 +215,6 @@ public class Server
         {
             username = credentials.nextLine().trim();
             password = credentials.nextLine().trim();
-            credentials.close();
         }
         catch( NullPointerException e )
         {

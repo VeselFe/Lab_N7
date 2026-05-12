@@ -26,31 +26,57 @@ public class Client
 
     public static void main(String[] args)
     {
+        boolean startClient = true;
         ClientConsoleHandler console = new ClientConsoleHandler();
 
-        try( SocketChannel channel = connectToServer() )
+        boolean authenticated = false;
+        while( !authenticated && startClient )
         {
-            if (channel != null)
+            try( SocketChannel channel = connectToServer() )
             {
-                NetworkManager networkManager = new NetworkManager(channel);
-                AuthManager authManager = new AuthManager(console, networkManager);
-                authManager.authenticate();
-                if( authManager.getLogin() == null )
+                if (channel != null)
                 {
-                    console.printInfo("Приложение завершило работу.");
+                    NetworkManager authNetworkManager = new NetworkManager(channel);
+                    AuthManager authManager = new AuthManager(console, authNetworkManager);
+                    boolean shouldRetry = authManager.authenticate();
+                    if(!shouldRetry)
+                    {
+                        if( authManager.getLogin() == null )
+                        {
+                            console.printInfo("Приложение завершило работу.");
+                            startClient = false;
+                        }
+                        else
+                        {
+                            console.initRequestCreator( console, authManager.getLogin(), authManager.getPassword() );
+                            console.setUser(authManager.getLogin());
+                            authenticated = true;
+                        }
+                    }
                 }
-                else
-                {
-                    console.welcomMessage();
-                    console.initRequestCreator( console, authManager.getLogin(), authManager.getPassword() );
-                    console.setUser(authManager.getLogin());
-                    boolean exit = false;
+            }
+            catch (IOException e)
+            {
+                console.printError("Не удалось подключиться для авторизации: " + e.getMessage());
+                startClient = false;
+            }
+        }
 
-                    while (!exit)
+        if(startClient)
+        {
+            boolean exit = false;
+            console.welcomMessage();
+            while (!exit)
+            {
+
+                try( SocketChannel channel = connectToServer() )
+                {
+                    if (channel != null)
                     {
                         Request request = console.createRequest();
                         try
                         {
+                            NetworkManager networkManager = new NetworkManager(channel);
                             if (request != null)
                             {
                                 networkManager.network(request);
@@ -85,14 +111,15 @@ public class Client
 
                         if (exit) break;
                     }
+
+                }
+                catch( Exception e )
+                {
+                    System.out.println("Ошибка при работе приложения: " + e.getMessage());
                 }
             }
+            console.close();
         }
-        catch( Exception e )
-        {
-            System.out.println("Ошибка при работе приложения: " + e.getMessage());
-        }
-        console.close();
     }
 
     private static SocketChannel connectToServer()

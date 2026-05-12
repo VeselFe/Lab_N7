@@ -20,32 +20,30 @@ public class AuthManager
         this.networkManager = networkManager;
     }
 
-    public void authenticate()
+    public boolean authenticate()
     {
-        boolean reg = true;
-        while( reg )
+        boolean continueAuth = true;
+        console.printRequest(" - РЕГИСТРАЦИЯ - \n" +
+                "r - регистрация нового пользователя\n" +
+                "l - войти\n" +
+                "q - выход\n" +
+                "> ");
+        switch(console.readline().trim())
         {
-            console.printRequest(" - РЕГИСТРАЦИЯ - \n" +
-                    "r - регистрация нового пользователя\n" +
-                    "l - войти\n" +
-                    "q - выход\n" +
-                    "> ");
-            switch(console.readline().trim())
-            {
-                case "r" -> {
-                    reg = sendAuthRequest("register", "зарегистрироваться");
-                }
-                case "l" -> {
-                    reg = sendAuthRequest("login", "авторизироваться");
-                }
-                case "q" -> {
-                    reg = false;
-                }
-                default -> {
-                    console.printError("Некорректный выбор. Попробуйте снова.");
-                }
+            case "r" -> {
+                continueAuth = sendAuthRequest("register", "зарегистрироваться");
+            }
+            case "l" -> {
+                continueAuth = sendAuthRequest("login", "авторизироваться");
+            }
+            case "q" -> {
+                continueAuth = false;
+            }
+            default -> {
+                console.printError("Некорректный выбор. Попробуйте снова.");
             }
         }
+        return continueAuth;
     }
     private boolean sendAuthRequest( String cmdType, String errMes )
     {
