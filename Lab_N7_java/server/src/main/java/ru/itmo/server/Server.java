@@ -100,7 +100,6 @@ public class Server
     {
         /// Серверный менеджер коллекцией
         CollectionManager mainCollection = CollectionManager.createCollection();
-        StudyGroup.setIdGenerator( new BasicGenerator(mainCollection) );
 
         Invoker invoker = new Invoker();
         registerClientCommands(invoker, mainCollection);
