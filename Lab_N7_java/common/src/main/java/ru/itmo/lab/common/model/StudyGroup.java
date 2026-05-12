@@ -1,12 +1,10 @@
 package ru.itmo.lab.common.model;
 
-import ru.itmo.lab.common.interfaces.IdGeneratorInterface;
 import ru.itmo.lab.common.myEnums.FormOfEducation;
 import ru.itmo.lab.common.myEnums.Semester;
 import ru.itmo.lab.common.myExceptions.CreationException;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 
 
 /**
@@ -40,6 +38,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     private Semester semesterEnum;
     /** Администратор группы. Поле не может быть null. */
     private Person groupAdmin;
+    private String owner = null;
     /**
      * Устанавливает ID и текущую дату создания автоматически.
      * Копирует все поля из переданного "строителя".
@@ -58,6 +57,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         this.formOfEducation = builder.formOfEducation;
         this.semesterEnum = builder.semesterEnum;
         this.groupAdmin = builder.groupAdmin;
+        this.owner = builder.owner;
     }
     /**
      * Внутренний статический класс Builder для создания объектов StudyGroup.
@@ -75,6 +75,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         private FormOfEducation formOfEducation;
         private Semester semesterEnum;
         private Person groupAdmin;
+        private String owner;
 
         /**
          * Создает и возвращает полностью корректный объект StudyGroup.
@@ -85,7 +86,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
          */
         public StudyGroup build()
         {
-            if(id == null || name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null)
+            if(id == null || name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null || owner == null)
             {
                 throw new CreationException("Не все поля заполнены!");
             }
@@ -218,6 +219,12 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         {
             StudyGroup.GroupValidations.validateAdmin(newAdmin);
             groupAdmin = newAdmin;
+            return this;
+        }
+        public Builder setOwner( String newOwner )
+        {
+            StudyGroup.GroupValidations.validateOwner(newOwner);
+            owner = newOwner;
             return this;
         }
     }
@@ -401,6 +408,14 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
                 throw new CreationException("Некорректные данные для создания: поле 'Админ группы' некорректно: поле должно быть заполнено!");
             }
         }
+        public static void validateOwner( String owner )
+        {
+            if( owner == null || owner.trim().equals("") )
+            {
+                throw new CreationException("Некорректные данные для создания: поле 'Владелец' некорректно: поле должно быть заполнено!");
+            }
+        }
+
     }
 
     /**

@@ -1,6 +1,7 @@
 package ru.itmo.client.clientTerminal;
 
 import ru.itmo.client.FileHandler.ScriptHandler;
+import ru.itmo.client.clienInterfaces.IO_AuthHandler;
 import ru.itmo.lab.common.commonNet.Request;
 import ru.itmo.lab.common.terminal.AbstractConsoleHandler;
 import ru.itmo.lab.common.interfaces.IO_Handler;
@@ -8,16 +9,19 @@ import ru.itmo.lab.common.model.Person;
 import ru.itmo.lab.common.model.StudyGroup;
 import ru.itmo.lab.common.myExceptions.CreationException;
 
+import java.io.Console;
 import java.util.Scanner;
 import java.util.Stack;
 
 public class ClientConsoleHandler extends AbstractConsoleHandler
-    implements IO_Handler
+    implements IO_AuthHandler
 {
     private final Scanner scanner = new Scanner(System.in);
     private final Stack<IO_Handler> ioHandlersStack = new Stack<>();
+    private final StudyGroupReader groupReader = new StudyGroupReader(this);
     private String input;
     private RequestCreator requestCreator;
+    private String user = null;
 
     public ClientConsoleHandler()
     {
@@ -28,9 +32,14 @@ public class ClientConsoleHandler extends AbstractConsoleHandler
     {
         print("Введите 'help' для просмотра возможных команд.");
     }
-    public void initRequestCreator( IO_Handler ioHandler )
+    public void initRequestCreator( IO_Handler ioHandler, String user, String password )
     {
-        this.requestCreator = new RequestCreator( ioHandler );
+        this.requestCreator = new RequestCreator( ioHandler, user, password );
+    }
+    public void setUser( String user )
+    {
+        this.user = user;
+        groupReader.setOwner(user);
     }
 
     public Request createRequest()
@@ -112,7 +121,7 @@ public class ClientConsoleHandler extends AbstractConsoleHandler
     @Override
     public StudyGroup readNewStudyGroup()
     {
-        return new StudyGroupReader(this).readStudygroup();
+        return groupReader.readStudygroup();
     }
 
     public void close()
@@ -126,5 +135,17 @@ public class ClientConsoleHandler extends AbstractConsoleHandler
                 ((ScriptHandler) handler).close();
             }
         }
+    }
+    public String readPassword()
+    {
+        Console  systemConsole = System.console();
+        if( systemConsole != null )
+        {
+            char[] symbols = systemConsole.readPassword();
+            if( symbols == null ) printError("Не удалось считать пароль!");
+            return String.valueOf( symbols );
+        }
+        else
+            return scanner.nextLine();
     }
 }

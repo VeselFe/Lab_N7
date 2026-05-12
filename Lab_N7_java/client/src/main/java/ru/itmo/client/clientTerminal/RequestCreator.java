@@ -6,6 +6,7 @@ import ru.itmo.lab.common.model.Person;
 import ru.itmo.lab.common.model.StudyGroup;
 import ru.itmo.lab.common.myEnums.Commands;
 import ru.itmo.lab.common.myExceptions.CommandException;
+import ru.itmo.lab.common.myExceptions.CreationException;
 import ru.itmo.lab.common.myRecords.Lab5FieldDescriptor;
 import ru.itmo.lab.common.myRecords.UpdatedFieldDescriptor;
 
@@ -13,11 +14,19 @@ public class RequestCreator
 {
     private final IO_Handler console;
     private final UpdateReader updateReader;
-    public RequestCreator( IO_Handler newIOHandler )
+    private String user = null;
+    private String password = null;
+
+    public RequestCreator( IO_Handler newIOHandler, String user, String password )
     {
         console = newIOHandler;
         updateReader = new UpdateReader();
+        this.user = user;
+        this.password = password;
+        if( user == null )
+            console.printError("Пользователь не авторизирован!");
     }
+
     public Request buildRequest( String input, IO_Handler intputHandler )
     {
         if( input.trim().isEmpty() )
@@ -29,6 +38,8 @@ public class RequestCreator
         {
             return new Request.Builder()
                     .setCommandType("exit")
+                    .setLogin(user)
+                    .setPassword(password)
                     .buildRequest();
         }
 
@@ -47,6 +58,8 @@ public class RequestCreator
                             .setCommandType(name)
                             .setID(id)
                             .setGroup(newGroup)
+                            .setLogin(user)
+                            .setPassword(password)
                             .buildRequest();
                 }
                 case "update_id" -> {
@@ -55,6 +68,8 @@ public class RequestCreator
 
                     Request.Builder requestBuilder = new Request.Builder()
                             .setCommandType(name)
+                            .setLogin(user)
+                            .setPassword(password)
                             .setID(id);
 
                     return updateReader.readUpdateField( requestBuilder, intputHandler ).buildRequest();
@@ -63,7 +78,10 @@ public class RequestCreator
                     Commands cmd = Commands.find(name);
                     if( cmd == null ) throw new IllegalArgumentException("Неизвестная команда!");
                     Request.Builder clientRequestBuilder = new Request.Builder();
-                    clientRequestBuilder.setCommandType(name);
+                    clientRequestBuilder
+                            .setCommandType(name)
+                            .setLogin(user)
+                            .setPassword(password);
                     if( args.length == 2 )
                     {
                         if( cmd.haveArguments() )

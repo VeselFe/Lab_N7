@@ -49,6 +49,22 @@ public class NetworkManager
         }
     }
 
+    public Response getAuthenResponse() throws IOException
+    {
+        try
+        {
+            Response serverResponse = recieveResponse();
+            return serverResponse;
+        }
+        catch(IOException e)
+        {
+            throw new IOException("Не обработался ответ: " + e.getMessage());
+        }
+        catch( Exception e )
+        {
+            throw new ResponseException("Неизвестная ошибка при обработке запроса: " + e.getMessage());
+        }
+    }
     public String getServerResponse() throws IOException, ResponseException
     {
         try

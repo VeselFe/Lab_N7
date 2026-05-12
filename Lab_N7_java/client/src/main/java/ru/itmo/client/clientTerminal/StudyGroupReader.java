@@ -14,10 +14,15 @@ import static ru.itmo.lab.common.myRecords.Lab5FieldDescriptor.NEW_GROUP_FIELDS;
  */
 public class StudyGroupReader
 {
-    private IO_Handler reader;
+    private final IO_Handler reader;
+    private String owner = null;
     public StudyGroupReader( IO_Handler newConsole )
     {
         reader = newConsole;
+    }
+    public void setOwner( String owner )
+    {
+        this.owner = owner;
     }
 
     public StudyGroup readStudygroup()
@@ -60,7 +65,9 @@ public class StudyGroupReader
         try 
         {
             reader.printInfo("Заполните анкету о новом админе");
-            groupGenerator.setAdmin(reader.readPerson());
+            groupGenerator
+                    .setAdmin(reader.readPerson())
+                    .setOwner(owner);
             return groupGenerator.build();
         }
         catch( Exception e )

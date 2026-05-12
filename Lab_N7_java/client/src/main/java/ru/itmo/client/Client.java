@@ -1,5 +1,6 @@
 package ru.itmo.client;
 
+import ru.itmo.client.clientTerminal.AuthManager;
 import ru.itmo.client.clientTerminal.ClientConsoleHandler;
 import ru.itmo.client.network.NetworkManager;
 import ru.itmo.lab.common.commonNet.Request;
@@ -26,26 +27,29 @@ public class Client
     public static void main(String[] args)
     {
         ClientConsoleHandler console = new ClientConsoleHandler();
-        console.initRequestCreator( console );
 
-        boolean exit = false;
-        while( !exit )
+        try( SocketChannel channel = connectToServer() )
         {
-            try( SocketChannel channel = connectToServer() )
+            if (channel != null)
             {
-                if (channel != null)
-                {
-                    NetworkManager networkManager = new NetworkManager(channel);
-                    console.welcomMessage();
+                console.welcomMessage();
+                NetworkManager networkManager = new NetworkManager(channel);
+                AuthManager authManager = new AuthManager(console, networkManager);
+                authManager.authenticate();
+                console.initRequestCreator( console, authManager.getLogin(), authManager.getPassword() );
+                console.setUser(authManager.getLogin());
+                boolean exit = false;
 
+                while (!exit)
+                {
                     Request request = console.createRequest();
                     try
                     {
-                        if( request != null )
+                        if (request != null)
                         {
                             networkManager.network(request);
                             String serverResponse = networkManager.getServerResponse();
-                            if( !request.getCommandType().equals("exit") )
+                            if (!request.getCommandType().equals("exit"))
                             {
                                 console.printInfo(serverResponse);
                             }
@@ -76,10 +80,10 @@ public class Client
                     if (exit) break;
                 }
             }
-            catch( Exception e )
-            {
-                System.out.println("Ошибка при работе приложения: " + e.getMessage());
-            }
+        }
+        catch( Exception e )
+        {
+            System.out.println("Ошибка при работе приложения: " + e.getMessage());
         }
         console.close();
     }

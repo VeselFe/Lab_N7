@@ -17,6 +17,8 @@ public class Request implements Serializable
     private final Long idArg;
     private final StudyGroup group;
     private final Person admin;
+    private final String login;
+    private final String password;
 
     private Request( Builder builder )
     {
@@ -26,6 +28,8 @@ public class Request implements Serializable
         this.group = builder.group;
         this.admin = builder.admin;
         this.updatedField = builder.updatedField;
+        this.login = builder.login;
+        this.password = builder.password;
     }
 
     public String getCommandType()
@@ -46,6 +50,8 @@ public class Request implements Serializable
         private Long idArg = null;
         private StudyGroup group = null;
         private Person admin = null;
+        private String login = null;
+        private String password = null;
 
         public Request buildRequest()
         {
@@ -110,6 +116,24 @@ public class Request implements Serializable
             }
 
             admin = newPerson;
+            return this;
+        }
+        public Builder setLogin( String login )
+        {
+            if( login == null )
+            {
+                throw new CommandException("Некорректный аргумент команды!");
+            }
+            this.login = login;
+            return this;
+        }
+        public Builder setPassword( String password )
+        {
+            if( password == null )
+            {
+                throw new CommandException("Некорректный аргумент команды!");
+            }
+            this.password = password;
             return this;
         }
     }
