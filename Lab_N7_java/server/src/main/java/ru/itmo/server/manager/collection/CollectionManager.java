@@ -120,7 +120,6 @@ public class CollectionManager
         {
             throw new CreationException("Элемент с данным ключем уже был создан");
         }
-        newGroup.generateGroupID();
         studyGroups.put(key, newGroup);
     }
     public void removeElement( Long key )

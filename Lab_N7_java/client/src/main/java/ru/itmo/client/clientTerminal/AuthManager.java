@@ -28,6 +28,7 @@ public class AuthManager
             console.printRequest(" - РЕГИСТРАЦИЯ - \n" +
                     "r - регистрация нового пользователя\n" +
                     "l - войти\n" +
+                    "q - выход\n" +
                     "> ");
             switch(console.readline().trim())
             {
@@ -36,6 +37,9 @@ public class AuthManager
                 }
                 case "l" -> {
                     reg = sendAuthRequest("login", "авторизироваться");
+                }
+                case "q" -> {
+                    reg = false;
                 }
                 default -> {
                     console.printError("Некорректный выбор. Попробуйте снова.");

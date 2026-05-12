@@ -74,6 +74,10 @@ public class StudyGroupDAO implements StudyGroupDAI
         catch( SQLException e )
         {
             DB.rollback();
+            if ("23503".equals(e.getSQLState()))
+            {
+                throw new SQLException("Ошибка: Пользователь-владелец не найден в базе данных.");
+            }
             throw e;
         }
         finally
@@ -375,7 +379,7 @@ public class StudyGroupDAO implements StudyGroupDAI
             }
         }
         if( enumIDs.isEmpty() )
-            logger.warn("Не было загружено ни одного элемента!");
+            logger.warn(enumName + ": Не было загружено ни одного элемента!");
     }
     public void loadFormOfEducationEnumIDs() throws SQLException
     {

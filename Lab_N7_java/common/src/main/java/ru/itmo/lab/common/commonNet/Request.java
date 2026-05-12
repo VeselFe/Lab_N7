@@ -41,6 +41,8 @@ public class Request implements Serializable
     public Long getIdArg() { return idArg; }
     public StudyGroup getGroup() { return group; }
     public Person getAdmin() { return admin; }
+    public String getLogin() { return login; }
+    public String getPassword() { return password; }
 
     public static class Builder
     {

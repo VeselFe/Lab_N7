@@ -21,7 +21,7 @@ import java.util.Stack;
 public class Client
 {
     private static final String host = "localhost";
-    private static final int port = 6060;
+    private static final int port = 6020;
     private static final int connectionDelay = 5000;
 
     public static void main(String[] args)
@@ -32,52 +32,59 @@ public class Client
         {
             if (channel != null)
             {
-                console.welcomMessage();
                 NetworkManager networkManager = new NetworkManager(channel);
                 AuthManager authManager = new AuthManager(console, networkManager);
                 authManager.authenticate();
-                console.initRequestCreator( console, authManager.getLogin(), authManager.getPassword() );
-                console.setUser(authManager.getLogin());
-                boolean exit = false;
-
-                while (!exit)
+                if( authManager.getLogin() == null )
                 {
-                    Request request = console.createRequest();
-                    try
+                    console.printInfo("Приложение завершило работу.");
+                }
+                else
+                {
+                    console.welcomMessage();
+                    console.initRequestCreator( console, authManager.getLogin(), authManager.getPassword() );
+                    console.setUser(authManager.getLogin());
+                    boolean exit = false;
+
+                    while (!exit)
                     {
-                        if (request != null)
+                        Request request = console.createRequest();
+                        try
                         {
-                            networkManager.network(request);
-                            String serverResponse = networkManager.getServerResponse();
-                            if (!request.getCommandType().equals("exit"))
+                            if (request != null)
                             {
-                                console.printInfo(serverResponse);
+                                networkManager.network(request);
+                                String serverResponse = networkManager.getServerResponse();
+                                if (!request.getCommandType().equals("exit"))
+                                {
+                                    console.printInfo(serverResponse);
+                                }
+                                else
+                                {
+                                    console.printInfo("Соединение успешно завершено!");
+                                    exit = true;
+                                }
                             }
                             else
                             {
-                                console.printInfo("Соединение успешно завершено!");
-                                exit = true;
+                                console.printError("Ошибка генерации запроса. Запрос не отправлен!");
                             }
                         }
-                        else
+                        catch( ConnectionException e )
                         {
-                            console.printError("Ошибка генерации запроса. Запрос не отправлен!");
+                            throw new ConnectionException(e.getMessage());
                         }
-                    }
-                    catch( ConnectionException e )
-                    {
-                        throw new ConnectionException(e.getMessage());
-                    }
-                    catch( ResponseException e )
-                    {
-                        console.printError(e.getMessage());
-                    }
-                    catch( Exception e )
-                    {
-                        console.printError("ошибка при попытке отправки запроса на сервер. " + e.getMessage());
-                    }
+                        catch( ResponseException e )
+                        {
+                            console.printError(e.getMessage());
+                        }
+                        catch( Exception e )
+                        {
+                            console.printError("ошибка при попытке отправки запроса на сервер. " + e.getMessage());
+                        }
 
-                    if (exit) break;
+                        if (exit) break;
+                    }
                 }
             }
         }

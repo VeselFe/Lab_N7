@@ -55,7 +55,7 @@ public class Invoker implements InvokerActions
 
         try
         {
-            //LoggerFactory.getLogger(Invoker.class).info("Исполнение команды...");
+            LoggerFactory.getLogger(Invoker.class).debug("Исполнение команды...");
             return cmd.execute( args );
         }
         catch( Exception e )
