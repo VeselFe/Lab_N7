@@ -31,5 +31,8 @@ public class RequestAdapter implements CommandArgs
     public Person getAdmin() { return request.getAdmin(); }
 
     @Override
+    public String getOwner() { return request.getLogin(); }
+
+    @Override
     public UpdatedFieldDescriptor getUpdatedField() { return request.getUpdatedField(); }
 }

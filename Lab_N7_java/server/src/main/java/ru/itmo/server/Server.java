@@ -1,6 +1,7 @@
 package ru.itmo.server;
 
 import ru.itmo.lab.common.commonNet.Response;
+import ru.itmo.server.dao.CollectionLoader;
 import ru.itmo.server.dao.StudyGroupDAO;
 import ru.itmo.server.dao.UserDAO;
 import ru.itmo.server.db.DatabaseHandler;
@@ -36,42 +37,27 @@ public class Server
     public static final Logger logger = LoggerFactory.getLogger(Server.class);
     private static final int port = 6020;
     private static Invoker serverInvoker;
+    private static StudyGroupDAO dbManager;
     /// Для гелиоса
     //private static String jdbcURL = "jdbc:postgresql://pg:5432/studs";
     /// Для отладки
     private static String jdbcURL = "jdbc:postgresql://localhost:2390/studs";
-
-    public static void test()
-    {
-        Connection dbConnection = getDB_Connection();
-        StudyGroupDAO dbManager = new StudyGroupDAO(dbConnection);
-        try
-        {
-            dbManager.loadEnumIDs();
-            //Загружаем чтобы потестить
-            CollectionManager mainCollection = CollectionManager.createCollection();
-            ServerConsoleHandler console = new ServerConsoleHandler();
-            GroupsFileManager.setErrorPrinter(console);
-            new Launcher(mainCollection, console).launchCollection();
-            long user_id = 1;//new UserDAO(dbConnection).registerUser("tester1", "0000");
-            for(Map.Entry<Long, StudyGroup> el : mainCollection.getStudyGroups().entrySet())
-            {
-                dbManager.addGroup(el.getKey(), el.getValue(), user_id);
-                //dbManager.removeGroup(el.getKey(), user_id);
-            }
-        }
-        catch (SQLException e)
-        {
-            logger.error(e.getMessage());
-        }
-
-    }
 
     public static void main(String[] args)
     {
         /// Серверный менеджер коллекцией
         CollectionManager mainCollection = CollectionManager.createCollection();
         Connection dbConnection = getDB_Connection();
+        dbManager = new StudyGroupDAO(dbConnection);
+        try
+        {
+            dbManager.loadEnumIDs();
+        }
+        catch( SQLException e )
+        {
+            logger.error("Не удалось импортировать константы из БД.");
+        }
+        new CollectionLoader(mainCollection, dbManager).loadCollection();
 
         Invoker invoker = new Invoker();
         registerClientCommands(invoker, mainCollection);
@@ -82,8 +68,8 @@ public class Server
         serverInvoker.addCommand("exit", new ExitCommand());
 
         ServerConsoleHandler console = new ServerConsoleHandler();
-        GroupsFileManager.setErrorPrinter(console);
-        new Launcher(mainCollection, console).launchCollection();
+//        GroupsFileManager.setErrorPrinter(console);
+//        new Launcher(mainCollection, console).launchCollection();
 
         Thread handleServerTerminal = new Thread(() -> {
             ServerConsoleHandler terminal = new ServerConsoleHandler();
@@ -237,7 +223,7 @@ public class Server
         invoker.addCommand("help", new HelpCommand(invoker));
         invoker.addCommand("info", new InfoCommand(manager));
         invoker.addCommand("show", new ShowCommand(manager));
-        invoker.addCommand("insert_element", new InsertElCommand(manager));
+        invoker.addCommand("insert_element", new InsertElCommand(manager, dbManager));
         invoker.addCommand("update_id", new UpdateIdCommand(manager));
         invoker.addCommand("remove_key", new RemoveCommand(manager));
         invoker.addCommand("clear", new ClearCommand(manager));

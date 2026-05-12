@@ -8,6 +8,7 @@ import ru.itmo.lab.common.model.StudyGroup;
 import ru.itmo.lab.common.myEnums.Country;
 import ru.itmo.lab.common.myEnums.FormOfEducation;
 import ru.itmo.lab.common.myEnums.Semester;
+import ru.itmo.lab.common.myExceptions.CreationException;
 import ru.itmo.server.serverInterfaces.StudyGroupDAI;
 
 import java.sql.*;
@@ -30,8 +31,9 @@ public class StudyGroupDAO implements StudyGroupDAI
     }
 
     @Override
-    public long addGroup( long key, StudyGroup newGroup, long ownerID ) throws SQLException
+    public long addGroup( long key, StudyGroup newGroup, String owner ) throws SQLException
     {
+        long ownerID;
         String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ?";
         try( PreparedStatement chekRequest = DB.prepareStatement(CHEK_KEY_GROUP) )
         {
@@ -40,6 +42,18 @@ public class StudyGroupDAO implements StudyGroupDAI
             {
                 if( result.next() )
                     throw new SQLException("Элемент с таким ключом (key='" + key + "') уже есть в базе.");
+            }
+        }
+        String FIND_OWNER = "SELECT id FROM users As u WHERE u.login = ? ";
+        try( PreparedStatement chekRequest = DB.prepareStatement(FIND_OWNER) )
+        {
+            chekRequest.setString(1, owner);
+            try( ResultSet result = chekRequest.executeQuery() )
+            {
+                if( !result.next() )
+                    throw new SQLException("Пользователь '" + owner + "' не найден в БД.");
+                else
+                    ownerID = result.getLong(1);
             }
         }
         DB.setAutoCommit(false);
@@ -119,7 +133,7 @@ public class StudyGroupDAO implements StudyGroupDAI
             }
             request.setDouble(3, newAdmin.getWeight());
             String passp = newAdmin.getPassportID();
-            if( passp == null || passp.isEmpty() )
+            if( passp == null || passp.trim().isEmpty() )
                 request.setNull(4, Types.VARCHAR);
             else
                 request.setString(4, passp);
@@ -267,8 +281,7 @@ public class StudyGroupDAO implements StudyGroupDAI
         try( Statement statement = DB.createStatement();
              ResultSet res = statement.executeQuery(LOAD_COLLECTION) )
         {
-            while( res.next() )
-            {
+            while( res.next() ) {
                 long key = res.getLong("key");
 
                 Coordinates coordinates = new Coordinates(
@@ -279,34 +292,39 @@ public class StudyGroupDAO implements StudyGroupDAI
                 Timestamp bdayTs = res.getTimestamp("admin_birthday");
                 String bdayString = (bdayTs != null) ? bdayTs.toLocalDateTime().toString() : null;
 
-                Person admin = new Person.Builder()
-                        .setName(res.getString("admin_name"))
-                        .setBirthday(bdayString)
-                        .setWeight(res.getFloat("admin_weight"))
-                        .setPassportID(res.getString("admin_passport"))
-                        .setNationality(res.getString("admin_nation"))
-                        .build();
+                try {
+                    Person admin = new Person.Builder()
+                            .setName(res.getString("admin_name"))
+                            .setBirthday(bdayString)
+                            .setWeight(res.getFloat("admin_weight"))
+                            .setPassportID(res.getString("admin_passport") == null ? "" : res.getString("admin_passport"))
+                            .setNationality(res.getString("admin_nation"))
+                            .build();
 
-                StudyGroup.Builder groupBuilder = new StudyGroup.Builder()
-                        .setId(res.getLong("id"))
-                        .setName(res.getString("name"))
-                        .setCoordinates(coordinates)
-                        .setStudCount(res.getInt("students_count"))
-                        .setShBeExp(res.getLong("should_be_expelled"))
-                        .setFormOfEdu(res.getString("formName"))
-                        .setSem(res.getString("semName"));
+                    StudyGroup.Builder groupBuilder = new StudyGroup.Builder()
+                            .setId(res.getLong("id"))
+                            .setName(res.getString("name"))
+                            .setCoordinates(coordinates)
+                            .setStudCount(res.getInt("students_count"))
+                            .setShBeExp(res.getLong("should_be_expelled"))
+                            .setFormOfEdu(res.getString("formName"))
+                            .setSem(res.getString("semName"))
+                            .setAdmin(admin)
+                            .setOwner(res.getString("owner"));
 
-                Timestamp creationTs = res.getTimestamp("creation_date");
-                if(creationTs != null)
-                {
-                    groupBuilder.setDateTime(creationTs.toLocalDateTime().atZone(java.time.ZoneId.systemDefault()));
+                    Timestamp creationTs = res.getTimestamp("creation_date");
+                    if (creationTs != null) {
+                        groupBuilder.setDateTime(creationTs.toLocalDateTime().atZone(java.time.ZoneId.systemDefault()));
+                    } else {
+                        groupBuilder.setDateTime(null);
+                    }
+
+                    collection.put(key, groupBuilder.build());
                 }
-                else
+                catch (CreationException e)
                 {
-                    groupBuilder.setDateTime(null);
+                    logger.error(e.getMessage());
                 }
-
-                collection.put(key, groupBuilder.build());
             }
         }
         logger.info("Коллекция успешно загружена из БД. Всего элементов: " + collection.size());
@@ -349,13 +367,15 @@ public class StudyGroupDAO implements StudyGroupDAI
             "SELECT g.*, " +
                     "c.x AS coord_x, c.y AS coord_y, " +
                     "p.name AS admin_name, p.birthday AS admin_birthday, p.weight AS admin_weight, " +
-                    "p.passport AS admin_passport, nation.name AS admin_nation, semester.name AS semName, form_of_education.name AS formName " +
+                    "p.passport AS admin_passport, nation.name AS admin_nation, semester.name AS semName, form_of_education.name AS formName, " +
+                    "u.login AS owner " +
                     "FROM study_groups g " +
                     "JOIN coordinates c ON g.coordinates_id = c.id " +
                     "JOIN person p ON g.group_admin_id = p.id " +
-                    "JOIN country AS nation ON g.country_id = nation.id " +
+                    "JOIN country AS nation ON p.country_id = nation.id " +
                     "JOIN semester ON g.semester_id = semester.id " +
-                    "JOIN form_of_education ON g.form_of_education_id = form_of_education.id";
+                    "JOIN form_of_education ON g.form_of_education_id = form_of_education.id " +
+                    "JOIN users AS u ON g.owner_id = u.id";
 
     private <T extends Enum<T>> void loadEnumIds( String sqlRequest, Map<T, Integer> enumIDs, Class<T> enumClass, String enumName  ) throws SQLException
     {
@@ -369,6 +389,7 @@ public class StudyGroupDAO implements StudyGroupDAI
                 try
                 {
                     T enumValue = Enum.valueOf(enumClass, name);
+                    logger.info(enumValue.name());
                     enumIDs.put(enumValue, id);
                     logger.debug("Добавление новой константы {id: " + id + "; name: " + name + "} в " + enumName);
                 }

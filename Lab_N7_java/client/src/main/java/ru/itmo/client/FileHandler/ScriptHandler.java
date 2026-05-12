@@ -16,6 +16,7 @@ import java.util.*;
 public class ScriptHandler implements IO_Handler
 {
     private String fileName;
+    private String owner = null;
     private int strIndex = 0;
     private final List<String> fileStrings;
     private static Set<Path> openedFiles = new HashSet<>();
@@ -33,6 +34,7 @@ public class ScriptHandler implements IO_Handler
         this.fileStrings = new GroupsFileManager( fileName ).loadScript();
         openedFiles.add(path);
     }
+    public void setOwner( String owner ) { this.owner = owner; }
 
     @Override
     public String readline()
@@ -66,7 +68,9 @@ public class ScriptHandler implements IO_Handler
     {
         try
         {
-            return new StudyGroupReader(this).readStudygroup();
+            StudyGroupReader groupReader = new StudyGroupReader(this);
+            groupReader.setOwner(owner);
+            return groupReader.readStudygroup();
         }
         catch( Exception e )
         {

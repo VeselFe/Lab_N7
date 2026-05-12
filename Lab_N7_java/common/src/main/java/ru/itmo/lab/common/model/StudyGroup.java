@@ -86,9 +86,9 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
          */
         public StudyGroup build()
         {
-            if(id == null || name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null || owner == null)
+            if(name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null || owner == null)
             {
-                throw new CreationException("Не все поля заполнены!");
+                throw new CreationException("Создание StudyGroup: Не все поля заполнены!");
             }
             return new StudyGroup( this );
         }
@@ -229,6 +229,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         }
     }
 
+    public void setId( long ID ) { this.id = ID; }
     /**
      * Обновляет название группы с валидацией.
      *

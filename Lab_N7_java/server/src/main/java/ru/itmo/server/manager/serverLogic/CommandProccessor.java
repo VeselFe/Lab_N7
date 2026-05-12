@@ -46,6 +46,7 @@ public class CommandProccessor
             }
             else
             {
+                userDAO.authenticateUser(clientRequest.getLogin(), clientRequest.getPassword());
                 ExecuteResult result = invoker.execute(new RequestAdapter( clientRequest ));
                 return new Response.Builder()
                         .setSuccess(result.isSuccess())

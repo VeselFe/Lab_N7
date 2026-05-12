@@ -52,7 +52,9 @@ public class ClientConsoleHandler extends AbstractConsoleHandler
         {
             try {
                 String fileName = input.trim().substring(14).trim();
-                ioHandlersStack.push(new ScriptHandler(fileName));
+                ScriptHandler scriptHandler= new ScriptHandler(fileName);
+                scriptHandler.setOwner(user);
+                ioHandlersStack.push(scriptHandler);
                 input = readline();
             }
             catch( Exception e )

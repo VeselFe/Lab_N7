@@ -12,4 +12,5 @@ public interface CommandArgs
     StudyGroup getGroup();
     UpdatedFieldDescriptor getUpdatedField();
     Person getAdmin();
+    String getOwner();
 }

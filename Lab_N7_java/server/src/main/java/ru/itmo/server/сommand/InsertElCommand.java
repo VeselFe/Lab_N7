@@ -9,6 +9,9 @@ import ru.itmo.lab.common.myExceptions.CreationException;
 import ru.itmo.server.serverInterfaces.Command;
 import ru.itmo.server.serverInterfaces.CommandArgs;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
+import ru.itmo.server.serverInterfaces.StudyGroupDAI;
+
+import java.sql.SQLException;
 
 /**
  * Команда для добавления нового элемента в коллекции
@@ -17,16 +20,18 @@ public class InsertElCommand implements Command
 {
     private Logger logger = LoggerFactory.getLogger(InsertElCommand.class);
     private final CollectionManager collection;
-    private Long Key;
+    private final StudyGroupDAI dbManager;
 
-    public InsertElCommand( CollectionManager newCollection )
+    public InsertElCommand(CollectionManager newCollection, StudyGroupDAI dbManager )
     {
         collection = newCollection;
+        this.dbManager = dbManager;
     }
 
     @Override
-    public ExecuteResult execute(CommandArgs args )
+    public ExecuteResult execute( CommandArgs args )
     {
+        Long Key;
         try
         {
             Key = Long.valueOf( args.getKey() );
@@ -37,14 +42,37 @@ public class InsertElCommand implements Command
             logger.error( errorMessage );
             throw new CreationException(errorMessage);
         }
+        if( Key == null )
+        {
+            String errorMessage = "Ключ не определен";
+            logger.error( errorMessage );
+            throw new CreationException(errorMessage);
+        }
+        if( collection.getStudyGroups().get(Key) != null )
+        {
+            String errorMessage = "Элемент с таким ключем уже существует";
+            logger.error( errorMessage );
+            throw new CreationException(errorMessage);
+        }
         try
         {
-            if( collection.getStudyGroups().get(Key) != null )
-            {
-                String errorMessage = "Элемент с таким ключем уже существует";
-                logger.error( errorMessage );
-                throw new CreationException(errorMessage);
-            }
+            long id = dbManager.addGroup(Key, args.getGroup(), args.getOwner());
+            args.getGroup().setId(id);
+        }
+        catch( SQLException e )
+        {
+            logger.error("Не удалось загрузить элемент в БД: " + e.getMessage());
+            return new CommandResult.Builder()
+                    .setSuccess( false )
+                    .setMessage( "Колекция: элемент уже существует!" )
+                    .buildCommandResult();
+        }
+        catch(Exception e)
+        {
+            logger.error("Неизвестная ошибка: " + e.getMessage());
+        }
+        try
+        {
             StudyGroup newGroup = args.getGroup();
 
             collection.addElement(Key, newGroup);

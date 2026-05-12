@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface StudyGroupDAI
 {
-    long addGroup( long key, StudyGroup newGroup, long ownerID ) throws SQLException;
+    long addGroup( long key, StudyGroup newGroup, String owner ) throws SQLException;
     boolean updateGroup( long key, StudyGroup group, long ownerID ) throws SQLException;
     boolean removeGroup( long groupID, long ownerID ) throws SQLException;
     Hashtable<Long, StudyGroup> loadCollectionFromDB() throws SQLException;

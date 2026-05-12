@@ -25,4 +25,6 @@ public class ServerCommandArgs implements CommandArgs
     public UpdatedFieldDescriptor getUpdatedField() { return null; }
     @Override
     public Person getAdmin() { return null; }
+    @Override
+    public String getOwner() { return null; }
 }

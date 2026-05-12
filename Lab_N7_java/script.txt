@@ -1,5 +1,4 @@
-remove_key 44
-insert_element 44
+insert_element 77
  test_script
  18 -24.3
  1
