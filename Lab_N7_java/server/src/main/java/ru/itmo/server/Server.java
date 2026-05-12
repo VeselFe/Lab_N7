@@ -1,6 +1,8 @@
 package ru.itmo.server;
 
 import ru.itmo.lab.common.commonNet.Response;
+import ru.itmo.server.dao.StudyGroupDAO;
+import ru.itmo.server.dao.UserDAO;
 import ru.itmo.server.db.DatabaseHandler;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
 import ru.itmo.server.serverInterfaces.InvokerActions;
@@ -19,6 +21,9 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
@@ -66,7 +71,28 @@ public class Server
         }
 
         DatabaseHandler database = new DatabaseHandler(jdbcURL, username, password);
-        database.connectToDatabase();
+        Connection dbConnection = database.connectToDatabase();
+        StudyGroupDAO dbManager = new StudyGroupDAO(dbConnection);
+        try
+        {
+            dbManager.loadEnumIDs();
+            //Загружаем чтобы потестить
+            CollectionManager mainCollection = CollectionManager.createCollection();
+            ServerConsoleHandler console = new ServerConsoleHandler();
+            GroupsFileManager.setErrorPrinter(console);
+            new Launcher(mainCollection, console).launchCollection();
+            long user_id = 1;//new UserDAO(dbConnection).registerUser("tester1", "0000");
+            for(Map.Entry<Long, StudyGroup> el : mainCollection.getStudyGroups().entrySet())
+            {
+                //dbManager.addGroup(el.getKey(), el.getValue(), user_id);
+                dbManager.removeGroup(el.getKey(), user_id);
+            }
+        }
+        catch (SQLException e)
+        {
+            logger.error(e.getMessage());
+        }
+
     }
 
     //public static void main(String[] args)

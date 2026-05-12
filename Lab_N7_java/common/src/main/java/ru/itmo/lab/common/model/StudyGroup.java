@@ -40,8 +40,6 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     private Semester semesterEnum;
     /** Администратор группы. Поле не может быть null. */
     private Person groupAdmin;
-    /** Генератор уникального ID группы.  */
-    static private IdGeneratorInterface idGenerator;
     /**
      * Устанавливает ID и текущую дату создания автоматически.
      * Копирует все поля из переданного "строителя".
@@ -51,7 +49,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     private StudyGroup( Builder builder )
     {
         this.id = builder.id;
-        this.creationDate = ZonedDateTime.now();
+        this.creationDate = builder.creationDate;
 
         this.name = builder.name;
         this.coordinates = builder.coordinates;
@@ -61,15 +59,6 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         this.semesterEnum = builder.semesterEnum;
         this.groupAdmin = builder.groupAdmin;
     }
-
-    public static void setIdGenerator( IdGeneratorInterface newGenerator )
-    {
-        idGenerator = newGenerator;
-    }
-    public void generateGroupID()
-    {
-        id = idGenerator.generateUniqueId();
-    }
     /**
      * Внутренний статический класс Builder для создания объектов StudyGroup.
      * Позволяет устанавливать поля поэтапно с проверкой полеей.
@@ -78,6 +67,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     public static class Builder
     {
         private Long id = null;
+        private java.time.ZonedDateTime creationDate = null;
         private String name;
         private Coordinates coordinates;
         private Integer studentsCount;
@@ -95,7 +85,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
          */
         public StudyGroup build()
         {
-            if(name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null)
+            if(id == null || name.isEmpty() || coordinates == null || studentsCount == null || shouldBeExpelled == null || formOfEducation == null || semesterEnum == null || groupAdmin == null)
             {
                 throw new CreationException("Не все поля заполнены!");
             }
@@ -115,6 +105,16 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
             this.name = newName;
             return this;
         }
+
+        public Builder setId(long id) {
+            this.id = id;
+            return this;
+        }
+        public Builder setDateTime( java.time.ZonedDateTime dateTime )
+        {
+            this.creationDate = dateTime;
+            return this;
+        }
         /**
          * Устанавливает координаты из строки формата "X Y".
          *
@@ -125,6 +125,11 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         public Builder setCoordinates( String XY )
         {
             coordinates = GroupParsers.parseCoordinates(XY);
+            return this;
+        }
+        public Builder setCoordinates( Coordinates coordinates )
+        {
+            this.coordinates = coordinates;
             return this;
         }
         /**
@@ -413,6 +418,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
      * @return name группы
      */
     public String getName() { return name; }
+    public Coordinates getCoordinates() { return coordinates; }
     /**
      * Возвращает количество студентов в группе.
      *
@@ -431,6 +437,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
      * @return semesterEnum
      */
     public Semester getSemester() { return semesterEnum; }
+    public FormOfEducation getFormOfEducation() { return formOfEducation; }
     /**
      * Возвращает админа группы.
      *

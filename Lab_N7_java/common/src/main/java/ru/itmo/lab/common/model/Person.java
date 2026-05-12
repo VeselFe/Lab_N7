@@ -86,6 +86,11 @@ public class Person implements Serializable
             this.weight = Parsers.parseWeight(newWeight);
             return this;
         }
+        public Builder setWeight( float newWeight )
+        {
+            this.weight = newWeight;
+            return this;
+        }
         public Builder setPassportID( String newPassport )
         {
             Validations.validatePassport(newPassport);
@@ -213,5 +218,7 @@ public class Person implements Serializable
         return name;
     }
     public float getWeight() { return weight; }
+    public java.time.LocalDateTime getBirthday() { return birthday; }
     public String getPassportID() { return passportID; }
+    public Country getNationality() { return nationality; }
 }

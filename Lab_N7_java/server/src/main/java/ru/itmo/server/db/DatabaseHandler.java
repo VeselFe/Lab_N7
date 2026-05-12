@@ -22,16 +22,18 @@ public class DatabaseHandler
         this.password = password;
     }
 
-    public void  connectToDatabase()
+    public Connection connectToDatabase()
     {
         try
         {
             connection = DriverManager.getConnection(URL, username, password);
             logger.info("Подключение к базе данных установлено");
+            return connection;
         }
         catch( SQLException e )
         {
             logger.error("Не удалось подключиться к базе данных");
         }
+        return null;
     }
 }
