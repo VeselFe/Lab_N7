@@ -39,6 +39,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     /** Администратор группы. Поле не может быть null. */
     private Person groupAdmin;
     private String owner = null;
+    private Long ownerID = null;
     /**
      * Устанавливает ID и текущую дату создания автоматически.
      * Копирует все поля из переданного "строителя".
@@ -58,6 +59,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         this.semesterEnum = builder.semesterEnum;
         this.groupAdmin = builder.groupAdmin;
         this.owner = builder.owner;
+        this.ownerID = builder.ownerID;
     }
     /**
      * Внутренний статический класс Builder для создания объектов StudyGroup.
@@ -76,6 +78,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         private Semester semesterEnum;
         private Person groupAdmin;
         private String owner;
+        private Long ownerID = null;
 
         /**
          * Создает и возвращает полностью корректный объект StudyGroup.
@@ -109,6 +112,11 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
 
         public Builder setId(long id) {
             this.id = id;
+            return this;
+        }
+        public Builder setOwnerID(Long id)
+        {
+            this.ownerID = id;
             return this;
         }
         public Builder setDateTime( java.time.ZonedDateTime dateTime )
@@ -470,6 +478,8 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
      * @return Person
      */
     public Person getAdmin() { return groupAdmin; }
+    public long getOwnerID() { return ownerID; }
+    public void setOwnerID( long ID ) { ownerID = ID; }
     /**
      * Возвращает подробную текстовую информацию о группе.
      * Форматирует все поля в читаемый вид.
@@ -515,6 +525,7 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
                 .setSem(semesterEnum)
                 .setAdmin(groupAdmin)
                 .setOwner(owner)
+                .setOwnerID(ownerID)
                 .build();
     }
 }

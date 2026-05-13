@@ -31,7 +31,7 @@ public class RemoveGreater implements Command
     }
 
     @Override
-    public ExecuteResult execute(CommandArgs args )
+    public ExecuteResult execute( CommandArgs args )
     {
         try
         {

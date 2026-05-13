@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Менеджер коллекции учебных групп.
@@ -232,11 +233,28 @@ public class CollectionManager
             }
         }
     }
-    public void clearCollection()
-    {
-        studyGroups.clear();
-    }
+    public void clearCollection(long ownerID) {
+        //lock.lock();
+        try
+        {
+            boolean dbSuccess = dbManager.clearGroups(ownerID);
 
+
+            if( dbSuccess )
+            {
+                studyGroups.entrySet().removeIf(entry -> entry.getValue().getOwnerID() == ownerID);
+                logger.info("Коллекция очищена для пользователя {}", ownerID);
+            }
+        }
+        catch( SQLException e )
+        {
+            throw new CommandException("Ошибка БД при очистке: " + e.getMessage());
+        }
+        finally
+        {
+            //lock.unlock();
+        }
+    }
     public boolean updateElement( Long key, String parametr, String value, Person newAdmin )
     {
         if( !studyGroups.containsKey(key) )

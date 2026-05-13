@@ -27,8 +27,8 @@ public class ShowCommand implements Command
     public ExecuteResult execute( CommandArgs args )
     {
         StringBuilder res = new StringBuilder();
-        res.append("Элементы коллекции: ");
-        res.append("***************************************");
+        res.append("Элементы коллекции: \n");
+        res.append("***************************************\n");
         Set<Map.Entry<Long, StudyGroup>> collectionLikeSet = collection.entrySet();
         if( collectionLikeSet.isEmpty() )
         {

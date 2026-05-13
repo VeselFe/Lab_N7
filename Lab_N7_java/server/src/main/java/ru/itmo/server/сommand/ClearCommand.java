@@ -24,7 +24,7 @@ public class ClearCommand implements Command
     {
         try
         {
-            collection.clearCollection();
+            collection.clearCollection( args.getOwnerID() );
             return new CommandResult.Builder()
                     .setSuccess( true )
                     .setMessage("Коллекция успешно очищена!")

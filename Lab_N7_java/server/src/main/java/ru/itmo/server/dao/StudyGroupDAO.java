@@ -267,6 +267,25 @@ public class StudyGroupDAO implements StudyGroupDAI
             return result > 0;
         }
     }
+    public boolean clearGroups( long ownerId ) throws SQLException
+    {
+        String DELETE_FILTER_OWNERID = "DELETE FROM study_groups WHERE owner_id = ?";
+
+        try( PreparedStatement statement = DB.prepareStatement(DELETE_FILTER_OWNERID) )
+        {
+            statement.setLong(1, ownerId);
+
+            int affectedRows = statement.executeUpdate();
+            logger.info("Из БД удалено " + affectedRows + " записей пользователя с ID = " + ownerId);
+
+            return true;
+        }
+        catch (SQLException e)
+        {
+            logger.error("Ошибка при выполнении clear для пользователя " + ownerId + ": " + e.getMessage());
+            throw e;
+        }
+    }
     public Hashtable<Long, StudyGroup> loadCollectionFromDB() throws SQLException
     {
         Hashtable<Long, StudyGroup> collection = new Hashtable<>();
@@ -302,7 +321,8 @@ public class StudyGroupDAO implements StudyGroupDAI
                             .setFormOfEdu(res.getString("formName"))
                             .setSem(res.getString("semName"))
                             .setAdmin(admin)
-                            .setOwner(res.getString("owner"));
+                            .setOwner(res.getString("owner"))
+                            .setOwnerID(res.getLong("owner_id"));
 
                     Timestamp creationTs = res.getTimestamp("creation_date");
                     if (creationTs != null) {

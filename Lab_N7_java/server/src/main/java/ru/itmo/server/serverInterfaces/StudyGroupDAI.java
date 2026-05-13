@@ -11,5 +11,6 @@ public interface StudyGroupDAI
     long addGroup( long key, StudyGroup newGroup, long ownerID ) throws SQLException;
     boolean updateGroup( long key, StudyGroup group, long ownerID ) throws SQLException;
     boolean removeGroup( long groupID, long ownerID ) throws SQLException;
+    boolean clearGroups( long ownerID ) throws SQLException;
     Hashtable<Long, StudyGroup> loadCollectionFromDB() throws SQLException;
 }

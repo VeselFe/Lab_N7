@@ -56,6 +56,7 @@ public class InsertElCommand implements Command
         {
             StudyGroup newGroup = args.getGroup();
 
+            newGroup.setOwnerID(args.getOwnerID());
             collection.addElement(Key, newGroup, args.getOwnerID());
             logger.info( "Колекция: Добавлен новый элемент!" );
             return new CommandResult.Builder()

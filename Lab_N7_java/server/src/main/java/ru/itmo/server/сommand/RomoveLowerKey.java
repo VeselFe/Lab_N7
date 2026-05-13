@@ -30,7 +30,7 @@ public class RomoveLowerKey implements Command
     }
 
     @Override
-    public ExecuteResult execute(CommandArgs args )
+    public ExecuteResult execute( CommandArgs args )
     {
         try
         {
@@ -46,7 +46,7 @@ public class RomoveLowerKey implements Command
         long count = 0;
         try
         {
-            List< Map.Entry<Long, StudyGroup> > removingList = collection.getStudyGroups().entrySet().stream()
+            List< Map.Entry<Long, StudyGroup>> removingList = collection.getStudyGroups().entrySet().stream()
                     .filter(element -> element.getKey() < Key)
                     .toList();
             CommandResult.Builder resBuilder = new CommandResult.Builder().setSuccess( true );
