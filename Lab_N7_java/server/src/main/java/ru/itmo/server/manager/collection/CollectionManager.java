@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
 
 /**
@@ -40,6 +41,7 @@ public class CollectionManager
     private final LocalDateTime initializationDate;
     private final Logger logger = LoggerFactory.getLogger(CollectionManager.class);
     private final StudyGroupDAI dbManager;
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * Приватный конструктор для реализации Singleton.

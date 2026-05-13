@@ -26,6 +26,7 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.*;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -36,8 +37,13 @@ public class Server
 {
     public static final Logger logger = LoggerFactory.getLogger(Server.class);
     private static final int port = 6020;
+
+    private static final ExecutorService readerPool = Executors.newCachedThreadPool();
+    private static final ForkJoinPool processorPool = new ForkJoinPool();
+
     private static Invoker serverInvoker;
     private static StudyGroupDAO dbManager;
+    private static boolean isRunning = true;
     /// Для гелиоса
     //private static String jdbcURL = "jdbc:postgresql://pg:5432/studs";
     /// Для отладки
@@ -94,20 +100,12 @@ public class Server
         logger.info("Сервер запустился. Порт: " + port);
         try( ServerSocket serverSocket = new ServerSocket(port) )
         {
-            while( !mainProccessor.isProgrammFinished() )
+            while( isRunning )
             {
                 logger.info("Ожидание подключения клиента...");
                 Socket clientSocket = serverSocket.accept();
-                if( mainProccessor.isProgrammFinished() )
-                {
-                    logger.info("Администратор завершил работу сервера.");
-                    logger.info("Сохранение коллекции..");
-                    serverInvoker.execute(new ServerCommandArgs("save"));
-                    logger.info("Завершение работы сервера");
-                    break;
-                }
                 logger.info("Клиент подключен: " + clientSocket.getInetAddress());
-                handleClient(clientSocket, mainProccessor, dbConnection);
+                readerPool.submit(() -> handleClient(clientSocket, mainProccessor, dbConnection));
             }
         }
         catch( IOException e )
@@ -119,73 +117,96 @@ public class Server
     public static void handleClient( Socket clientSocket, CommandProccessor proccessor, Connection dbConnection )
     {
         logger.info("Потоки ввода-вывода инициализированы.");
-        CommandProccessor.restartServerProgramm();
-        while( !clientSocket.isClosed() )
+        try
+        {
+            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+            while( !clientSocket.isClosed() )
+            {
+                try
+                {
+                    // логика обработки поступившей информации
+                    // читаем запрос
+                    Request request = RequestReader.read(input);
+                    logger.info("Получен запрос: " + request.getCommandType());
+
+                    if (request.getCommandType().equals("login") || request.getCommandType().equals("register"))
+                    {
+                        // * Безопасная отправка через Thread с future
+                        break;
+                    }
+                    else
+                    {
+                        processorPool.execute(() -> responseHandler(output, proccessor, request, dbConnection));
+                    }
+                }
+                catch (ClassNotFoundException e) {
+                    logger.error("Некорректные полученные данные");
+                } catch (EOFException e) {
+                    logger.info("Клиент завершил сессию.");
+                    break;
+                } catch (SocketException e) {
+                    logger.error("Соединение с клиентом потеряно.");
+                    break;
+                } catch (IOException e) {
+                    logger.error("Ошибка потоков ввода-вывода: " + e.getMessage());
+                    break;
+                } catch (Exception e) {
+                    logger.error("Неизвестная ошибка при обработке запроса: " + e.getMessage());
+                }
+            }
+            logger.info("Сессия завершена!\n");
+        }
+        catch( Exception e )
+        {
+            logger.error("Ошибка сессии клиента " + e.getMessage());
+        }
+        finally
         {
             try
             {
-                InputStream is = clientSocket.getInputStream();
-                OutputStream os = clientSocket.getOutputStream();
-                ObjectInputStream input = new ObjectInputStream(is);
-
-                // логика обработки поступившей информации
-                // читаем запрос
-                Request request = RequestReader.read(input);
-                logger.info("Получен запрос: " + request.getCommandType());
-
-                // обрабатываем
-                Response response = proccessor.ProcessRequest( request, new UserDAO(dbConnection) );
-
-                logger.info("Запрос обработан!");
-                logger.info("<Начало запроса>");
-                logger.info("Success: " + response.isSuccess() + ";");
-                logger.info("Message: " + response.getMessage() + ";");
-                logger.info("<Конец запроса>");
-
-                ObjectOutputStream output = new ObjectOutputStream(os);
-                // отправляем обратно ответ
-                ResponseSender.sendResponse(output, response);
-                logger.info("Ответ отправлен!\n");
-                break;
+                if (clientSocket != null && !clientSocket.isClosed())
+                {
+                    clientSocket.close();
+                }
             }
-            catch( ClassNotFoundException e )
+            catch (IOException e)
             {
-                logger.error("Некорректные полученные данные");
+                logger.error("Ошибка при финальном закрытии сокета: " + e.getMessage());
             }
-            catch( EOFException e )
-            {
-                logger.info("Клиент завершил сессию.");
-                break;
-            }
-            catch( SocketException e )
-            {
-                logger.error("Соединение с клиентом потеряно.");
-                break;
-            }
-            catch( IOException e )
-            {
-                logger.error("Ошибка потоков ввода-вывода: " + e.getMessage());
-                break;
-            }
-            catch ( Exception e )
-            {
-                logger.error("Неизвестная ошибка при обработке запроса: " + e.getMessage());
-            }
+            logger.info("Ресурсы клиента закрыты.");
         }
-        try
-        {
-            if (!clientSocket.isClosed())
-            {
-                clientSocket.close();
-            }
-        }
-        catch (IOException e)
-        {
-            logger.error("Ошибка при закрытии сокета.");
-        }
-        logger.info("Сессия завершена!\n");
     }
-    public static Connection getDB_Connection()
+    private static void responseHandler(ObjectOutputStream output, CommandProccessor proccessor, Request request, Connection dbConnection)
+    {
+        // обрабатываем
+        Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
+
+        logger.info("Запрос обработан!");
+        logger.info("<Начало запроса>");
+        logger.info("Success: " + response.isSuccess() + ";");
+        logger.info("Message: " + response.getMessage() + ";");
+        logger.info("<Конец запроса>");
+
+        Thread responseThread = new Thread(() -> {
+            synchronized( output )
+            {
+                try
+                {
+                    // отправляем обратно ответ
+                    ResponseSender.sendResponse(output, response);
+                    logger.info("Ответ отправлен!\n");
+                }
+                catch( IOException e )
+                {
+                    logger.error("Ошибка при отправке ответа: " + e.getMessage());
+                }
+            }
+        });
+        responseThread.start();
+    }
+
+public static Connection getDB_Connection()
     {
         Scanner credentials = null;
         String username = null;
@@ -235,4 +256,26 @@ public class Server
         invoker.addCommand("filter_starts_with_name", new FilterStartsWithName(manager));
         invoker.addCommand("print_ascending", new PrintAscending(manager));
     }
+
+    static public void stopServer()
+    {
+        logger.info("Завершение работы сервера...");
+        isRunning = false;
+
+        // Перестаем принимать новые подключения
+        // Закрываем ServerSocket, чтобы выйти из accept()
+
+        processorPool.shutdown();     // Для логики
+
+        try
+        {
+            // Даем пулам время на завершение задач
+            if (!processorPool.awaitTermination(5, TimeUnit.SECONDS))
+            {
+                processorPool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            processorPool.shutdownNow();
+    }
+}
 }

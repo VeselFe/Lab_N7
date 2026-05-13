@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import ru.itmo.lab.common.commonNet.Request;
 import ru.itmo.lab.common.commonNet.Response;
+import ru.itmo.server.Server;
 import ru.itmo.server.dao.UserDAO;
 import ru.itmo.server.serverInterfaces.CommandArgs;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
@@ -15,7 +16,6 @@ import java.sql.SQLException;
 public class CommandProccessor
 {
     public static final Logger logger = LoggerFactory.getLogger(CommandProccessor.class);
-    private static boolean exit = false;
     private InvokerActions invoker;
 
     public CommandProccessor( InvokerActions invoker )
@@ -74,11 +74,5 @@ public class CommandProccessor
                     .setMessage("Ошибка при конвертации данных: " + e.getMessage() + "\n")
                     .buildResponse();
         }
-    }
-    public static void restartServerProgramm() { exit = false; }
-    public static void stopServerProgramm() { exit = true; }
-    public boolean isProgrammFinished()
-    {
-        return exit;
     }
 }

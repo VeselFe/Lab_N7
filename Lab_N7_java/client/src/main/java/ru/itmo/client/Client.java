@@ -64,19 +64,26 @@ public class Client
 
         if(startClient)
         {
-            boolean exit = false;
-            console.welcomMessage();
-            while (!exit)
-            {
+            processClient(console);
+        }
+    }
 
-                try( SocketChannel channel = connectToServer() )
+    private static void processClient( ClientConsoleHandler console )
+    {
+        boolean exit = false;
+        console.welcomMessage();
+        while (!exit) // Переподключение к серверу в случае разрыва соединения
+        {
+            try (SocketChannel channel = connectToServer())
+            {
+                NetworkManager networkManager = new NetworkManager(channel);
+                while (!exit) // отправляем все запросы в 1 подключении
                 {
                     if (channel != null)
                     {
                         Request request = console.createRequest();
                         try
                         {
-                            NetworkManager networkManager = new NetworkManager(channel);
                             if (request != null)
                             {
                                 networkManager.network(request);
@@ -96,30 +103,29 @@ public class Client
                                 console.printError("Ошибка генерации запроса. Запрос не отправлен!");
                             }
                         }
-                        catch( ConnectionException e )
+                        catch (ConnectionException e)
                         {
                             throw new ConnectionException(e.getMessage());
                         }
-                        catch( ResponseException e )
+                        catch (ResponseException e)
                         {
                             console.printError(e.getMessage());
                         }
-                        catch( Exception e )
+                        catch (Exception e)
                         {
                             console.printError("ошибка при попытке отправки запроса на сервер. " + e.getMessage());
                         }
 
                         if (exit) break;
                     }
-
-                }
-                catch( Exception e )
-                {
-                    console.printError("Ошибка при работе приложения: " + e.getMessage());
                 }
             }
-            console.close();
+            catch( Exception e )
+            {
+                console.printError("Ошибка при работе приложения: " + e.getMessage());
+            }
         }
+        console.close();
     }
 
     private static SocketChannel connectToServer()

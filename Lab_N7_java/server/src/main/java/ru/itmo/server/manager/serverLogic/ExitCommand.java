@@ -1,6 +1,7 @@
 package ru.itmo.server.manager.serverLogic;
 
 import org.slf4j.LoggerFactory;
+import ru.itmo.server.Server;
 import ru.itmo.server.ioHandlers.CommandResult;
 import ru.itmo.server.serverInterfaces.Command;
 import ru.itmo.server.serverInterfaces.CommandArgs;
@@ -18,7 +19,7 @@ public class ExitCommand implements Command
     @Override
     public ExecuteResult execute(CommandArgs args )
     {
-        CommandProccessor.stopServerProgramm();
+        Server.stopServer();
         message = "Подключение прекращено. Сервер Отключен.";
         LoggerFactory.getLogger(ExitCommand.class).info(message);
         return new CommandResult.Builder()
