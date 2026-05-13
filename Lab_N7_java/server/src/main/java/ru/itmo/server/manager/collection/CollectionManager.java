@@ -197,8 +197,9 @@ public class CollectionManager
     {
         void accept(StudyGroup group) throws Exception;
     }
-    public void removeElement( Long key )
+    public void removeElement( Long key, long ownerID ) throws Exception
     {
+        boolean success = false;
         if(studyGroups.isEmpty())
         {
             throw new CommandException("Коллекция пуста!");
@@ -211,11 +212,23 @@ public class CollectionManager
         {
             try
             {
-                studyGroups.remove( key );
+                success = dbManager.removeGroup(key, ownerID);
+            }
+            catch( SQLException e )
+            {
+                logger.error("Не удалось удалить элемент из БД: " + e.getMessage());
+                throw new CommandException("Не удалось удалить элемент из БД.");
+            }
+            try
+            {
+                if(success)
+                    studyGroups.remove( key );
+                else
+                    throw new CommandException("Не удалось удалить элемент из БД - нет прав доступа!");
             }
             catch ( Exception e )
             {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getMessage());
             }
         }
     }

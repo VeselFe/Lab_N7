@@ -34,7 +34,18 @@ public class RemoveCommand implements Command
             LoggerFactory.getLogger(RemoveCommand.class).error(errorMessage);
             throw new CommandException(errorMessage);
         }
-        collection.removeElement(Key);
+        try
+        {
+            collection.removeElement(Key, args.getOwnerID());
+        }
+        catch( Exception e )
+        {
+            return new CommandResult.Builder()
+                    .setSuccess( false )
+                    .setMessage("Не удалось удалить элемент: " + e.getMessage())
+                    .setSortedCollection(collection.getSortedByNameCollection())
+                    .buildCommandResult();
+        }
         return new CommandResult.Builder()
                 .setSuccess( true )
                 .setMessage("Элемент успешно удален")
