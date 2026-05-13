@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS person
     name TEXT NOT NULL,
     birthday TIMESTAMP NOT NULL,
     weight FLOAT CHECK (weight > 0),
-    passport VARCHAR(14) UNIQUE CHECK (passport IS NULL OR LENGTH(passport) = 0 OR LENGTH(passport) >= 8),
+    passport VARCHAR(14) CHECK (passport IS NULL OR LENGTH(passport) = 0 OR LENGTH(passport) >= 8),
     country_id INTEGER REFERENCES country(id) NOT NULL
 );
 

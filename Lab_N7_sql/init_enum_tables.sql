@@ -6,7 +6,7 @@ INSERT INTO form_of_education VALUES
 (3, 'EVENING_CLASSES')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO semester_enum VALUES
+INSERT INTO semester VALUES
 (1, 'FIRST'),
 (2, 'SECOND'),
 (3, 'THIRD'),

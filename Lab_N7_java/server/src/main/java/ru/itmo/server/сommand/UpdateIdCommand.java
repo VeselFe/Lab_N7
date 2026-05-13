@@ -24,12 +24,10 @@ public class UpdateIdCommand implements Command
 {
     private final Logger logger = LoggerFactory.getLogger(UpdateIdCommand.class);
     private final CollectionManager collection;
-    private final StudyGroupDAI dbManager;
 
-    public UpdateIdCommand(CollectionManager newCollection, StudyGroupDAI dbManager )
+    public UpdateIdCommand( CollectionManager newCollection )
     {
         collection = newCollection;
-        this.dbManager = dbManager;
     }
 
     @Override
@@ -80,6 +78,7 @@ public class UpdateIdCommand implements Command
                 logger.error(errorMessage);
                 throw new CommandException(errorMessage);
             }
+
             if( updatedField.name().equals("admin") )
             {
                 if( newAdmin == null )
@@ -88,7 +87,9 @@ public class UpdateIdCommand implements Command
                     logger.error(errorMessage);
                     throw new CommandException(errorMessage);
                 }
-                group.updateAdmin(newAdmin);
+                collection.updateElement(Key, args.getOwnerID(), (g) -> {
+                    g.updateAdmin(newAdmin);
+                });
             }
             else
             {
@@ -99,51 +100,32 @@ public class UpdateIdCommand implements Command
                     throw new CommandException(errorMessage);
                 }
 
-                try
-                {
-                    boolean success = dbManager.updateGroup(Key, group, args.getOwnerID());
-                    if(success)
-                    {
-                        Method method = group.getClass().getMethod(updatedField.methodName(), updatedField.type());
-                        method.invoke(group, argument);
-                    }
-                    else
-                        return new CommandResult.Builder()
-                                .setSuccess( false )
-                                .setMessage( "Не удалось обновить элемент" )
-                                .buildCommandResult();
-                }
-                catch( SQLException e )
-                {
-                    logger.error("Не удалось обновить элемент в БД: " + e.getMessage());
-                    return new CommandResult.Builder()
-                            .setSuccess( false )
-                            .setMessage( "Ощибка при обновлении элемента в БД: Не удалось обновить элемент в БД" )
-                            .buildCommandResult();
-                }
+                    collection.updateElement(Key, args.getOwnerID(), (g) -> {
+                        try
+                        {
+                        Method method = g.getClass().getMethod(updatedField.methodName(), updatedField.type());
+                        method.invoke(g, argument);
+                        }
+                        catch( NoSuchMethodException e )
+                        {
+                            throw new CommandException("Ошибка при обновлении поля группы: метод " + updatedField.methodName() + " не найден в классе StudyGroup.");
+                        }
+
+                        catch( IllegalAccessException e )
+                        {
+                            throw new CommandException("Ошибка доступа: серверу запрещено вызывать метод " + updatedField.methodName());
+                        }
+                        catch( InvocationTargetException e )
+                        {
+                            throw new CommandException("Ошибка при валидации данных: " + e.getMessage());
+                        }
+                    });
+
             }
             return new CommandResult.Builder()
                     .setSuccess( true )
                     .setMessage("Значение поля '" + updatedField.name() + "' успешно обновлено")
                     .buildCommandResult();
-        }
-        catch( NoSuchMethodException e )
-        {
-            errorMessage = "Ошибка при обновлении поля группы: метод " + updatedField.methodName() + " не найден в классе StudyGroup.";
-            logger.error(errorMessage);
-            throw new CommandException(errorMessage);
-        }
-        catch( IllegalAccessException e )
-        {
-            errorMessage = "Ошибка доступа: серверу запрещено вызывать метод " + updatedField.methodName();
-            logger.error(errorMessage);
-            throw new CommandException(errorMessage);
-        }
-        catch( InvocationTargetException e )
-        {
-            errorMessage = "Ошибка при валидации данных: " + e.getMessage();
-            logger.error(errorMessage);
-            throw new CommandException(errorMessage);
         }
         catch (Exception e)
         {

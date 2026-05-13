@@ -196,6 +196,11 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
             formOfEducation = GroupParsers.parseFormOfEdu(newStrForm);
             return this;
         }
+        public Builder setFormOfEdu( FormOfEducation newForm )
+        {
+            formOfEducation = newForm;
+            return this;
+        }
         /**
          * Устанавливает семестр обучения группы.
          *
@@ -206,6 +211,11 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
         public Builder setSem( String newStrSem )
         {
             semesterEnum = GroupParsers.parseSemester(newStrSem);
+            return this;
+        }
+        public Builder setSem( Semester newSem )
+        {
+            semesterEnum = newSem;
             return this;
         }
         /**
@@ -491,5 +501,20 @@ public class StudyGroup implements Comparable<StudyGroup>, Serializable
     public int compareTo( StudyGroup otherGroup )
     {
         return Long.compare( this.getId(), otherGroup.getId() );
+    }
+    public StudyGroup copy()
+    {
+        return new StudyGroup.Builder()
+                .setId(id)
+                .setName(name)
+                .setDateTime(creationDate)
+                .setCoordinates(coordinates)
+                .setStudCount(studentsCount)
+                .setShBeExp(shouldBeExpelled)
+                .setFormOfEdu(formOfEducation)
+                .setSem(semesterEnum)
+                .setAdmin(groupAdmin)
+                .setOwner(owner)
+                .build();
     }
 }

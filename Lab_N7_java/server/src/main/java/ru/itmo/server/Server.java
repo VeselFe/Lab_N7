@@ -224,8 +224,8 @@ public class Server
         invoker.addCommand("help", new HelpCommand(invoker));
         invoker.addCommand("info", new InfoCommand(manager));
         invoker.addCommand("show", new ShowCommand(manager));
-        invoker.addCommand("insert_element", new InsertElCommand(manager, dbManager));
-        invoker.addCommand("update_id", new UpdateIdCommand(manager, dbManager));
+        invoker.addCommand("insert_element", new InsertElCommand(manager));
+        invoker.addCommand("update_id", new UpdateIdCommand(manager));
         invoker.addCommand("remove_key", new RemoveCommand(manager));
         invoker.addCommand("clear", new ClearCommand(manager));
         invoker.addCommand("remove_greater", new RemoveGreater(manager));

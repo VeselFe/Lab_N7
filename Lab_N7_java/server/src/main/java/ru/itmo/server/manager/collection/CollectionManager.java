@@ -147,15 +147,55 @@ public class CollectionManager
         //lock.lock();
         try
         {
-            if ( studyGroups.get( key ) != null )
+            if( studyGroups.get( key ) != null )
             {
                 throw new CreationException("Элемент с данным ключем уже был создан");
             }
             studyGroups.put(key, newGroup);
         }
-        finally {
+        finally
+        {
             //lock.unlock();
         }
+    }
+    public void updateElement( Long key, long ownerId, UpdatedFieldConsumer updateLogic )
+    {
+        //lock.lock();
+        try
+        {
+            StudyGroup group = studyGroups.get(key);
+            if (group == null) throw new CommandException("Элемент не найден");
+
+            StudyGroup tempGroup = group.copy();
+            updateLogic.accept(tempGroup);
+            boolean success = dbManager.updateGroup(key, tempGroup, ownerId);
+            if (success)
+            {
+                updateLogic.accept(group);
+                logger.info("Элемент с ключом key='" + key + "' успешно обновлен");
+            }
+            else
+            {
+                throw new CommandException("У вас нет прав на редактирование этого объекта или он не существует");
+            }
+        }
+        catch( SQLException e )
+        {
+            throw new CommandException("Ошибка БД: " + e.getMessage());
+        }
+        catch( Exception e )
+        {
+            throw new CommandException("Менеджер коллекции: Не удалось обновить элемент " + e.getMessage());
+        }
+        finally
+        {
+            //lock.unlock();
+        }
+    }
+    @FunctionalInterface
+    public interface UpdatedFieldConsumer
+    {
+        void accept(StudyGroup group) throws Exception;
     }
     public void removeElement( Long key )
     {

@@ -60,8 +60,6 @@ public class ClientConsoleHandler extends AbstractConsoleHandler
             catch( Exception e )
             {
                 printError("Ошибка при работе со скриптом: " + e.getMessage());
-                ((ScriptHandler) ioHandlersStack.peek()).close();
-                ioHandlersStack.pop();
                 return createRequest();
             }
         }

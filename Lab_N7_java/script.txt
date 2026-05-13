@@ -1,12 +1,12 @@
-insert_element 121
- test_script
- 18 -24.3
- 1000
- 201
+insert_element 255
+ test_script_db
+ 21 -124.3
+ 2300
+ 1308
  DISTANCE_EDUCATION
- FIRST
- Pickichp
- 1998-12-02T17:23:18
- 71
+ third
+ liza
+ 2005-07-02T10:13:28
+ 67
 
  RUSSIA

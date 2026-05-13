@@ -20,12 +20,10 @@ public class InsertElCommand implements Command
 {
     private Logger logger = LoggerFactory.getLogger(InsertElCommand.class);
     private final CollectionManager collection;
-    private final StudyGroupDAI dbManager;
 
-    public InsertElCommand(CollectionManager newCollection, StudyGroupDAI dbManager )
+    public InsertElCommand(CollectionManager newCollection)
     {
         collection = newCollection;
-        this.dbManager = dbManager;
     }
 
     @Override

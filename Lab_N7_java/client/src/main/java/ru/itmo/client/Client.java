@@ -115,7 +115,7 @@ public class Client
                 }
                 catch( Exception e )
                 {
-                    System.out.println("Ошибка при работе приложения: " + e.getMessage());
+                    console.printError("Ошибка при работе приложения: " + e.getMessage());
                 }
             }
             console.close();

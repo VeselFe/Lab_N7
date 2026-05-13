@@ -142,9 +142,9 @@ public class StudyGroupDAO implements StudyGroupDAI
     @Override
     public boolean updateGroup( long key, StudyGroup group, long ownerID ) throws SQLException
     {
-        String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ?";
-        //String CHEK_OWNER_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ? AND g.owner_id = ?";
-        try( PreparedStatement chekRequest = DB.prepareStatement(CHEK_KEY_GROUP) )
+        //String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ?";
+        String CHEK_KEY_AND_OWNER_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ? AND g.owner_id = ?";
+        try( PreparedStatement chekRequest = DB.prepareStatement(CHEK_KEY_AND_OWNER_GROUP) )
         {
             chekRequest.setLong(1, key);
             chekRequest.setLong(2, ownerID);
@@ -248,6 +248,10 @@ public class StudyGroupDAO implements StudyGroupDAI
             request.setLong(5, id);
             int result = request.executeUpdate();
             return result > 0;
+        }
+        catch( SQLException e )
+        {
+            throw new SQLException("Некорректные значения для обновления администратора группы");
         }
     }
 
