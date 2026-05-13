@@ -61,7 +61,27 @@ public class RomoveLowerKey implements Command
                     deletedNames.append("\n" + count + ") " + element.getValue().getName());
                     deletedNames.append("   'id' = " + element.getKey());
                 }
-                removingList.forEach(element -> collection.getStudyGroups().remove(element.getKey()));
+                try
+                {
+                    removingList.forEach(element -> {
+                        try
+                        {
+                            collection.removeElement(element.getKey(), args.getOwnerID());
+                        }
+                        catch( Exception e )
+                        {
+                            throw new CommandException(e.getMessage());
+                        }
+                    });
+                }
+                catch( Exception e )
+                {
+                    return new CommandResult.Builder()
+                            .setSuccess( false )
+                            .setMessage("Не удалось удалить элемент: " + e.getMessage())
+                            .setSortedCollection(collection.getSortedByNameCollection())
+                            .buildCommandResult();
+                }
                 resBuilder.setMessage("Было обнаружено и удалено " + removingList.size() + " элемента(-ов): " + deletedNames);
             }
             return resBuilder.setSortedCollection(collection.getSortedByNameCollection())
