@@ -63,7 +63,27 @@ public class RemoveGreater implements Command
                 .map(Map.Entry::getKey)
                 .toList();
         long count = removingList.size();
-        removingList.forEach(key -> collection.getStudyGroups().remove(key));
+        try
+        {
+            removingList.forEach(key -> {
+                try
+                {
+                    collection.removeElement(key, args.getOwnerID());
+                }
+                catch( Exception e )
+                {
+                    throw new CommandException(e.getMessage());
+                }
+            });
+        }
+        catch( Exception e )
+        {
+            return new CommandResult.Builder()
+                    .setSuccess( false )
+                    .setMessage("Не удалось удалить элемент: " + e.getMessage())
+                    .setSortedCollection(collection.getSortedByNameCollection())
+                    .buildCommandResult();
+        }
 
         CommandResult.Builder resBuilder = new CommandResult.Builder().setSuccess( true );
         if( count == 0 )
