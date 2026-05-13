@@ -46,9 +46,10 @@ public class Server
     public static void main(String[] args)
     {
         /// Серверный менеджер коллекцией
-        CollectionManager mainCollection = CollectionManager.createCollection();
         Connection dbConnection = getDB_Connection();
         dbManager = new StudyGroupDAO(dbConnection);
+        CollectionManager mainCollection = CollectionManager.createCollection( dbManager );
+
         try
         {
             dbManager.loadEnumIDs();

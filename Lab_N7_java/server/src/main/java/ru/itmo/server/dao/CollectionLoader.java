@@ -29,7 +29,7 @@ public class CollectionLoader
             Hashtable<Long, StudyGroup> collection = loader.loadCollectionFromDB();
             for(Map.Entry<Long, StudyGroup> element : collection.entrySet())
             {
-                collectionManager.addElement(element.getKey(), element.getValue());
+                collectionManager.addInMemory(element.getKey(), element.getValue());
                 count++;
             }
             logger.info("Успешно загружено " + count + " элементов.");

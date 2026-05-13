@@ -1,12 +1,12 @@
-insert_element 77
+insert_element 121
  test_script
  18 -24.3
- 1
+ 1000
  201
  DISTANCE_EDUCATION
  FIRST
- Foma
- 1988-12-02T17:23:12
+ Pickichp
+ 1998-12-02T17:23:18
  71
 
  RUSSIA

@@ -56,26 +56,9 @@ public class InsertElCommand implements Command
         }
         try
         {
-            long id = dbManager.addGroup(Key, args.getGroup(), args.getOwner());
-            args.getGroup().setId(id);
-        }
-        catch( SQLException e )
-        {
-            logger.error("Не удалось загрузить элемент в БД: " + e.getMessage());
-            return new CommandResult.Builder()
-                    .setSuccess( false )
-                    .setMessage( "Колекция: элемент уже существует!" )
-                    .buildCommandResult();
-        }
-        catch(Exception e)
-        {
-            logger.error("Неизвестная ошибка: " + e.getMessage());
-        }
-        try
-        {
             StudyGroup newGroup = args.getGroup();
 
-            collection.addElement(Key, newGroup);
+            collection.addElement(Key, newGroup, args.getOwnerID());
             logger.info( "Колекция: Добавлен новый элемент!" );
             return new CommandResult.Builder()
                     .setSuccess( true )

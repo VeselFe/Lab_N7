@@ -1,10 +1,16 @@
 package ru.itmo.server.manager.collection;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.itmo.lab.common.model.Person;
 import ru.itmo.lab.common.model.StudyGroup;
 import ru.itmo.lab.common.myExceptions.CommandException;
 import ru.itmo.lab.common.myExceptions.CreationException;
+import ru.itmo.server.ioHandlers.CommandResult;
+import ru.itmo.server.serverInterfaces.StudyGroupDAI;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -30,16 +36,19 @@ public class CollectionManager
     /** Основная коллекция: ключ - ID, значение - учебная группа */
     private final Hashtable<Long, StudyGroup> studyGroups;
     /** Дата и время инициализации коллекции */
-    private LocalDateTime initializationDate;
+    private final LocalDateTime initializationDate;
+    private final Logger logger = LoggerFactory.getLogger(CollectionManager.class);
+    private final StudyGroupDAI dbManager;
 
     /**
      * Приватный конструктор для реализации Singleton.
      * Инициализирует пустую коллекцию и устанавливает время создания.
      */
-    private CollectionManager()
+    private CollectionManager( StudyGroupDAI dbManager )
     {
         studyGroups = new Hashtable<>();
         initializationDate = LocalDateTime.now();
+        this.dbManager = dbManager;
     }
 
     /**
@@ -47,11 +56,11 @@ public class CollectionManager
      *
      * @return единственный экземпляр {@link CollectionManager}
      */
-    public static CollectionManager createCollection()
+    public static CollectionManager createCollection( StudyGroupDAI dbManager )
     {
         if( singleCollection == null )
         {
-            singleCollection = new CollectionManager();
+            singleCollection = new CollectionManager( dbManager );
         }
         return singleCollection;
     }
@@ -114,13 +123,39 @@ public class CollectionManager
      *
      * @throws CreationException если ключ уже существует в коллекции
      */
-    public void addElement( Long key, StudyGroup newGroup )
+    public void addElement( Long key, StudyGroup newGroup, long ownerID )
     {
-        if ( studyGroups.get( key ) != null )
+        try
         {
-            throw new CreationException("Элемент с данным ключем уже был создан");
+            long id = dbManager.addGroup(key, newGroup, ownerID);
+            newGroup.setId(id);
         }
-        studyGroups.put(key, newGroup);
+        catch( SQLException e )
+        {
+            String errorMessage = "Не удалось загрузить элемент в БД: " + e.getMessage();
+            logger.error(errorMessage);
+            throw new CreationException(errorMessage);
+        }
+        catch(Exception e)
+        {
+            logger.error("Неизвестная ошибка: " + e.getMessage());
+        }
+        addInMemory(key, newGroup);
+    }
+    public void addInMemory( Long key, StudyGroup newGroup )
+    {
+        //lock.lock();
+        try
+        {
+            if ( studyGroups.get( key ) != null )
+            {
+                throw new CreationException("Элемент с данным ключем уже был создан");
+            }
+            studyGroups.put(key, newGroup);
+        }
+        finally {
+            //lock.unlock();
+        }
     }
     public void removeElement( Long key )
     {

@@ -31,9 +31,8 @@ public class StudyGroupDAO implements StudyGroupDAI
     }
 
     @Override
-    public long addGroup( long key, StudyGroup newGroup, String owner ) throws SQLException
+    public long addGroup( long key, StudyGroup newGroup, long ownerID ) throws SQLException
     {
-        long ownerID;
         String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ?";
         try( PreparedStatement chekRequest = DB.prepareStatement(CHEK_KEY_GROUP) )
         {
@@ -42,18 +41,6 @@ public class StudyGroupDAO implements StudyGroupDAI
             {
                 if( result.next() )
                     throw new SQLException("Элемент с таким ключом (key='" + key + "') уже есть в базе.");
-            }
-        }
-        String FIND_OWNER = "SELECT id FROM users As u WHERE u.login = ? ";
-        try( PreparedStatement chekRequest = DB.prepareStatement(FIND_OWNER) )
-        {
-            chekRequest.setString(1, owner);
-            try( ResultSet result = chekRequest.executeQuery() )
-            {
-                if( !result.next() )
-                    throw new SQLException("Пользователь '" + owner + "' не найден в БД.");
-                else
-                    ownerID = result.getLong(1);
             }
         }
         DB.setAutoCommit(false);
