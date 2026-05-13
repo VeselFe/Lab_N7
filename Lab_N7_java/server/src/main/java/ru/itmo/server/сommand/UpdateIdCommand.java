@@ -11,9 +11,11 @@ import ru.itmo.lab.common.myRecords.UpdatedFieldDescriptor;
 import ru.itmo.server.serverInterfaces.Command;
 import ru.itmo.server.serverInterfaces.CommandArgs;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
+import ru.itmo.server.serverInterfaces.StudyGroupDAI;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 /**
  * Команда для обновления указанного пользователем поля элеменат коллекции
@@ -22,20 +24,22 @@ public class UpdateIdCommand implements Command
 {
     private final Logger logger = LoggerFactory.getLogger(UpdateIdCommand.class);
     private final CollectionManager collection;
-    private String errorMessage;
-    private Long Key;
-    private String argument;
-    private UpdatedFieldDescriptor updatedField;
-    private Person newAdmin;
+    private final StudyGroupDAI dbManager;
 
-    public UpdateIdCommand(CollectionManager newCollection )
+    public UpdateIdCommand(CollectionManager newCollection, StudyGroupDAI dbManager )
     {
         collection = newCollection;
+        this.dbManager = dbManager;
     }
 
     @Override
-    public ExecuteResult execute(CommandArgs args )
+    public ExecuteResult execute( CommandArgs args )
     {
+        String errorMessage;
+        Long Key;
+        String argument;
+        UpdatedFieldDescriptor updatedField;
+        Person newAdmin;
         try
         {
             Key = Long.valueOf( args.getKey() );
@@ -95,8 +99,28 @@ public class UpdateIdCommand implements Command
                     throw new CommandException(errorMessage);
                 }
 
-                Method method = group.getClass().getMethod(updatedField.methodName(), updatedField.type());
-                method.invoke(group, argument);
+                try
+                {
+                    boolean success = dbManager.updateGroup(Key, group, args.getOwnerID());
+                    if(success)
+                    {
+                        Method method = group.getClass().getMethod(updatedField.methodName(), updatedField.type());
+                        method.invoke(group, argument);
+                    }
+                    else
+                        return new CommandResult.Builder()
+                                .setSuccess( false )
+                                .setMessage( "Не удалось обновить элемент" )
+                                .buildCommandResult();
+                }
+                catch( SQLException e )
+                {
+                    logger.error("Не удалось обновить элемент в БД: " + e.getMessage());
+                    return new CommandResult.Builder()
+                            .setSuccess( false )
+                            .setMessage( "Ощибка при обновлении элемента в БД: Не удалось обновить элемент в БД" )
+                            .buildCommandResult();
+                }
             }
             return new CommandResult.Builder()
                     .setSuccess( true )

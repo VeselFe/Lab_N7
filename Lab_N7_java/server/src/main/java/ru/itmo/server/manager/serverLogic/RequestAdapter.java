@@ -9,6 +9,7 @@ import ru.itmo.lab.common.myRecords.UpdatedFieldDescriptor;
 public class RequestAdapter implements CommandArgs
 {
     private final Request request;
+    private long ownerId;
 
     RequestAdapter( Request request )
     {
@@ -35,4 +36,11 @@ public class RequestAdapter implements CommandArgs
 
     @Override
     public UpdatedFieldDescriptor getUpdatedField() { return request.getUpdatedField(); }
+
+    @Override
+    public long getOwnerID() { return ownerId; }
+
+    @Override
+    public void setOwnerID( long id )
+    { ownerId = id; }
 }

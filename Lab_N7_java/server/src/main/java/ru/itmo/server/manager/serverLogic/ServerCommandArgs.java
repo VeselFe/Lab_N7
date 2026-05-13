@@ -8,6 +8,7 @@ import ru.itmo.lab.common.myRecords.UpdatedFieldDescriptor;
 public class ServerCommandArgs implements CommandArgs
 {
     private String name;
+    private long ownerId;
     public ServerCommandArgs( String name )
     {
         this.name = name;
@@ -27,4 +28,10 @@ public class ServerCommandArgs implements CommandArgs
     public Person getAdmin() { return null; }
     @Override
     public String getOwner() { return null; }
+    @Override
+    public long getOwnerID() { return ownerId; }
+
+    @Override
+    public void setOwnerID( long id )
+    { ownerId = id; }
 }

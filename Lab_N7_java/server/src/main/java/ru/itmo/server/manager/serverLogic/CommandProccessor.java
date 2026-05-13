@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import ru.itmo.lab.common.commonNet.Request;
 import ru.itmo.lab.common.commonNet.Response;
 import ru.itmo.server.dao.UserDAO;
+import ru.itmo.server.serverInterfaces.CommandArgs;
 import ru.itmo.server.serverInterfaces.ExecuteResult;
 import ru.itmo.server.serverInterfaces.InvokerActions;
 import ru.itmo.server.serverInterfaces.UserDAI;
@@ -46,8 +47,10 @@ public class CommandProccessor
             }
             else
             {
-                userDAO.authenticateUser(clientRequest.getLogin(), clientRequest.getPassword());
-                ExecuteResult result = invoker.execute(new RequestAdapter( clientRequest ));
+                long userID = userDAO.authenticateUser(clientRequest.getLogin(), clientRequest.getPassword());
+                CommandArgs requestArgs = new RequestAdapter( clientRequest );
+                requestArgs.setOwnerID( userID );
+                ExecuteResult result = invoker.execute( requestArgs );
                 return new Response.Builder()
                         .setSuccess(result.isSuccess())
                         .setMessage(result.getMessage())

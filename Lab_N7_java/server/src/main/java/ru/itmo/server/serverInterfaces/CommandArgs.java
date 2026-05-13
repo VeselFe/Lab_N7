@@ -13,4 +13,6 @@ public interface CommandArgs
     UpdatedFieldDescriptor getUpdatedField();
     Person getAdmin();
     String getOwner();
+    long getOwnerID();
+    void setOwnerID( long id );
 }

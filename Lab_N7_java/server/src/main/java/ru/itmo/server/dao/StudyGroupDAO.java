@@ -155,7 +155,8 @@ public class StudyGroupDAO implements StudyGroupDAI
     @Override
     public boolean updateGroup( long key, StudyGroup group, long ownerID ) throws SQLException
     {
-        String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ? AND g.owner_id = ?";
+        String CHEK_KEY_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ?";
+        //String CHEK_OWNER_GROUP = "SELECT * FROM study_groups AS g WHERE g.key = ? AND g.owner_id = ?";
         try( PreparedStatement chekRequest = DB.prepareStatement(CHEK_KEY_GROUP) )
         {
             chekRequest.setLong(1, key);
@@ -163,7 +164,7 @@ public class StudyGroupDAO implements StudyGroupDAI
             try (ResultSet result = chekRequest.executeQuery())
             {
                 if( !result.next() )
-                    throw new SQLException("Элемент с таким ключом (key='" + key + "') отсутствует в базе.");
+                    throw new SQLException("Элемент с таким ключом (key='" + key + "') отсутствует в базе или у вас нет прав на его редактирование");
             }
         }
         DB.setAutoCommit(false);
@@ -389,7 +390,6 @@ public class StudyGroupDAO implements StudyGroupDAI
                 try
                 {
                     T enumValue = Enum.valueOf(enumClass, name);
-                    logger.info(enumValue.name());
                     enumIDs.put(enumValue, id);
                     logger.debug("Добавление новой константы {id: " + id + "; name: " + name + "} в " + enumName);
                 }
