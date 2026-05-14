@@ -1,11 +1,11 @@
-insert_element 2
- test_script_db
+insert_element 22
+ test_multithreads
  21 -124.3
  900
  1308
  DISTANCE_EDUCATION
  third
- liza
+ pasha
  2005-07-02T10:13:28
  67
 

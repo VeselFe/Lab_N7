@@ -27,7 +27,7 @@ public class ClearCommand implements Command
             collection.clearCollection( args.getOwnerID() );
             return new CommandResult.Builder()
                     .setSuccess( true )
-                    .setMessage("Коллекция успешно очищена!")
+                    .setMessage("Из коллекции успешно удалены все элементы данного пользователя!")
                     .buildCommandResult();
         }
         catch( Exception e )

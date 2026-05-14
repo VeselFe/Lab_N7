@@ -74,7 +74,15 @@ public class CollectionManager
      */
     public Hashtable<Long, StudyGroup> getStudyGroups()
     {
-        return studyGroups;
+        lock.lock();
+        try
+        {
+            return studyGroups;
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
     /**
      * Возвращает отсортированный список всех учебных групп.
@@ -85,16 +93,32 @@ public class CollectionManager
      */
     public List<StudyGroup> getSortedCollection()
     {
-        List<StudyGroup> groups = new ArrayList<>(studyGroups.values());
-        groups.sort(null);
-        return groups;
+        lock.lock();
+        try
+        {
+            List<StudyGroup> groups = new ArrayList<>(studyGroups.values());
+            groups.sort(null);
+            return groups;
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
     public List<StudyGroup> getSortedByNameCollection()
     {
-        List<StudyGroup> groups = new ArrayList<>(studyGroups.values());
-        StudyGroupByNameComparator comparator = new StudyGroupByNameComparator();
-        groups.sort(comparator);
-        return groups;
+        lock.lock();
+        try
+        {
+            List<StudyGroup> groups = new ArrayList<>(studyGroups.values());
+            StudyGroupByNameComparator comparator = new StudyGroupByNameComparator();
+            groups.sort(comparator);
+            return groups;
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
     /**
      * Возвращает текстовую информацию о коллекции в формате:
@@ -109,13 +133,20 @@ public class CollectionManager
     public String getInfo()
     {
         String creationTime = initializationDate.toString();
-
-        return  "Тип: Hashtable\n" +
-                "Дата инициализации: " +
-                creationTime.substring(8,10) + '.' + creationTime.substring(5,7) +
-                '.' + creationTime.substring(0,4) +
-                " в " + (creationTime.substring(11,19)) +
-                "\nКоличество элементов: " + studyGroups.size();
+        lock.lock();
+        try
+        {
+            return  "Тип: Hashtable\n" +
+                    "Дата инициализации: " +
+                    creationTime.substring(8,10) + '.' + creationTime.substring(5,7) +
+                    '.' + creationTime.substring(0,4) +
+                    " в " + (creationTime.substring(11,19)) +
+                    "\nКоличество элементов: " + studyGroups.size();
+        }
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     /**
@@ -128,26 +159,34 @@ public class CollectionManager
      */
     public void addElement( Long key, StudyGroup newGroup, long ownerID )
     {
+        lock.lock();
         try
         {
-            long id = dbManager.addGroup(key, newGroup, ownerID);
-            newGroup.setId(id);
+            try
+            {
+                long id = dbManager.addGroup(key, newGroup, ownerID);
+                newGroup.setId(id);
+            }
+            catch( SQLException e )
+            {
+                String errorMessage = "Не удалось загрузить элемент в БД: " + e.getMessage();
+                logger.error(errorMessage);
+                throw new CreationException(errorMessage);
+            }
+            catch(Exception e)
+            {
+                logger.error("Неизвестная ошибка: " + e.getMessage());
+            }
+            addInMemory(key, newGroup);
         }
-        catch( SQLException e )
+        finally
         {
-            String errorMessage = "Не удалось загрузить элемент в БД: " + e.getMessage();
-            logger.error(errorMessage);
-            throw new CreationException(errorMessage);
+            lock.unlock();
         }
-        catch(Exception e)
-        {
-            logger.error("Неизвестная ошибка: " + e.getMessage());
-        }
-        addInMemory(key, newGroup);
     }
     public void addInMemory( Long key, StudyGroup newGroup )
     {
-        //lock.lock();
+        lock.lock();
         try
         {
             if( studyGroups.get( key ) != null )
@@ -158,12 +197,12 @@ public class CollectionManager
         }
         finally
         {
-            //lock.unlock();
+            lock.unlock();
         }
     }
     public void updateElement( Long key, long ownerId, UpdatedFieldConsumer updateLogic )
     {
-        //lock.lock();
+        lock.lock();
         try
         {
             StudyGroup group = studyGroups.get(key);
@@ -192,7 +231,7 @@ public class CollectionManager
         }
         finally
         {
-            //lock.unlock();
+            lock.unlock();
         }
     }
     @FunctionalInterface
@@ -213,34 +252,41 @@ public class CollectionManager
         }
         else
         {
+            lock.lock();
             try
             {
-                success = dbManager.removeGroup(key, ownerID);
+                try
+                {
+                    success = dbManager.removeGroup(key, ownerID);
+                }
+                catch( SQLException e )
+                {
+                    logger.error("Не удалось удалить элемент из БД: " + e.getMessage());
+                    throw new CommandException("Не удалось удалить элемент из БД.");
+                }
+                try
+                {
+                    if(success)
+                        studyGroups.remove( key );
+                    else
+                        throw new CommandException("Не удалось удалить элемент из БД - нет прав доступа!");
+                }
+                catch ( Exception e )
+                {
+                    throw new RuntimeException(e.getMessage());
+                }
             }
-            catch( SQLException e )
+            finally
             {
-                logger.error("Не удалось удалить элемент из БД: " + e.getMessage());
-                throw new CommandException("Не удалось удалить элемент из БД.");
-            }
-            try
-            {
-                if(success)
-                    studyGroups.remove( key );
-                else
-                    throw new CommandException("Не удалось удалить элемент из БД - нет прав доступа!");
-            }
-            catch ( Exception e )
-            {
-                throw new RuntimeException(e.getMessage());
+                lock.unlock();
             }
         }
     }
     public void clearCollection(long ownerID) {
-        //lock.lock();
+        lock.lock();
         try
         {
             boolean dbSuccess = dbManager.clearGroups(ownerID);
-
 
             if( dbSuccess )
             {
@@ -254,7 +300,7 @@ public class CollectionManager
         }
         finally
         {
-            //lock.unlock();
+            lock.unlock();
         }
     }
     public boolean updateElement( Long key, String parametr, String value, Person newAdmin )
@@ -263,7 +309,7 @@ public class CollectionManager
         {
             throw new CommandException("По данному ключу ничего не найдено");
         }
-
+        lock.lock();
         try
         {
             switch (parametr.toLowerCase())
@@ -286,6 +332,10 @@ public class CollectionManager
         catch ( Exception e )
         {
             throw new CommandException("Неизвестная ошибка при попытке обновления поля '" + parametr + "'");
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 }
