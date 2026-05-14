@@ -53,64 +53,70 @@ public class Server
     {
         /// Серверный менеджер коллекцией
         Connection dbConnection = getDB_Connection();
-        dbManager = new StudyGroupDAO(dbConnection);
-        CollectionManager mainCollection = CollectionManager.createCollection( dbManager );
 
-        try
+        if( dbConnection == null )
+            logger.error("БД не подключена. Сервер не запущен.");
+        else
         {
-            dbManager.loadEnumIDs();
-        }
-        catch( SQLException e )
-        {
-            logger.error("Не удалось импортировать константы из БД.");
-        }
-        new CollectionLoader(mainCollection, dbManager).loadCollection();
+            dbManager = new StudyGroupDAO(dbConnection);
+            CollectionManager mainCollection = CollectionManager.createCollection( dbManager );
 
-        Invoker invoker = new Invoker();
-        registerClientCommands(invoker, mainCollection);
-        CommandProccessor mainProccessor = new CommandProccessor( invoker );
-
-        serverInvoker = new Invoker();
-        //serverInvoker.addCommand("save", new SaveCommand(mainCollection, "SavedCollection.txt"));
-        serverInvoker.addCommand("exit", new ExitCommand());
-
-        ServerConsoleHandler console = new ServerConsoleHandler();
-//        GroupsFileManager.setErrorPrinter(console);
-//        new Launcher(mainCollection, console).launchCollection();
-
-        Thread handleServerTerminal = new Thread(() -> {
-            ServerConsoleHandler terminal = new ServerConsoleHandler();
-            logger.info("Серверный терминал запущен.");
-
-            while( true )
+            try
             {
-                String adminCommand = terminal.readline();
-                logger.info("Получена команда от Администратора сервера: " + adminCommand);
-                ExecuteResult serverCmdRes = serverInvoker.execute(new ServerCommandArgs(adminCommand.toLowerCase().trim()));
-                if( serverCmdRes.isSuccess() )
-                    logger.info(serverCmdRes.getMessage());
-                else
-                    logger.error("Ошибка обработки команды администратора: " + serverCmdRes.getMessage());
+                dbManager.loadEnumIDs();
             }
-        });
-        handleServerTerminal.setDaemon(true);
-        handleServerTerminal.start();
-
-        /// Сеть
-        logger.info("Сервер запустился. Порт: " + port);
-        try( ServerSocket serverSocket = new ServerSocket(port) )
-        {
-            while( isRunning )
+            catch( SQLException e )
             {
-                logger.info("Ожидание подключения клиента...");
-                Socket clientSocket = serverSocket.accept();
-                logger.info("Клиент подключен: " + clientSocket.getInetAddress());
-                readerPool.submit(() -> handleClient(clientSocket, mainProccessor, dbConnection));
+                logger.error("Не удалось импортировать константы из БД.");
             }
-        }
-        catch( IOException e )
-        {
-            logger.error("Ошибка сервера: " + e.getMessage());
+            new CollectionLoader(mainCollection, dbManager).loadCollection();
+
+            Invoker invoker = new Invoker();
+            registerClientCommands(invoker, mainCollection);
+            CommandProccessor mainProccessor = new CommandProccessor( invoker );
+
+            serverInvoker = new Invoker();
+            //serverInvoker.addCommand("save", new SaveCommand(mainCollection, "SavedCollection.txt"));
+            serverInvoker.addCommand("exit", new ExitCommand());
+
+            ServerConsoleHandler console = new ServerConsoleHandler();
+            //        GroupsFileManager.setErrorPrinter(console);
+            //        new Launcher(mainCollection, console).launchCollection();
+
+            Thread handleServerTerminal = new Thread(() -> {
+                ServerConsoleHandler terminal = new ServerConsoleHandler();
+                logger.info("Серверный терминал запущен.");
+
+                while( true )
+                {
+                    String adminCommand = terminal.readline();
+                    logger.info("Получена команда от Администратора сервера: " + adminCommand);
+                    ExecuteResult serverCmdRes = serverInvoker.execute(new ServerCommandArgs(adminCommand.toLowerCase().trim()));
+                    if( serverCmdRes.isSuccess() )
+                        logger.info(serverCmdRes.getMessage());
+                    else
+                        logger.error("Ошибка обработки команды администратора: " + serverCmdRes.getMessage());
+                }
+            });
+            handleServerTerminal.setDaemon(true);
+            handleServerTerminal.start();
+
+            /// Сеть
+            logger.info("Сервер запустился. Порт: " + port);
+            try( ServerSocket serverSocket = new ServerSocket(port) )
+            {
+                while( isRunning )
+                {
+                    logger.info("Ожидание подключения клиента...");
+                    Socket clientSocket = serverSocket.accept();
+                    logger.info("Клиент подключен: " + clientSocket.getInetAddress());
+                    readerPool.submit(() -> handleClient(clientSocket, mainProccessor, dbConnection));
+                }
+            }
+            catch( IOException e )
+            {
+                logger.error("Ошибка сервера: " + e.getMessage());
+            }
         }
     }
 
@@ -119,8 +125,9 @@ public class Server
         logger.info("Потоки ввода-вывода инициализированы.");
         try
         {
-            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+            output.flush();
+            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
             while( !clientSocket.isClosed() )
             {
                 try
@@ -129,15 +136,20 @@ public class Server
                     // читаем запрос
                     Request request = RequestReader.read(input);
                     logger.info("Получен запрос: " + request.getCommandType());
+                    // обрабатываем
 
                     if (request.getCommandType().equals("login") || request.getCommandType().equals("register"))
                     {
-                        // * Безопасная отправка через Thread с future
+                        Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
+                        authResponseHandler(output, response);
                         break;
                     }
                     else
                     {
-                        processorPool.execute(() -> responseHandler(output, proccessor, request, dbConnection));
+                        processorPool.execute(() -> {
+                            Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
+                            responseHandler(output, response);
+                        });
                     }
                 }
                 catch (ClassNotFoundException e) {
@@ -177,11 +189,8 @@ public class Server
             logger.info("Ресурсы клиента закрыты.");
         }
     }
-    private static void responseHandler(ObjectOutputStream output, CommandProccessor proccessor, Request request, Connection dbConnection)
+    private static void responseHandler(ObjectOutputStream output, Response response)
     {
-        // обрабатываем
-        Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
-
         logger.info("Запрос обработан!");
         logger.info("<Начало запроса>");
         logger.info("Success: " + response.isSuccess() + ";");
@@ -205,8 +214,38 @@ public class Server
         });
         responseThread.start();
     }
+    private static void authResponseHandler(ObjectOutputStream output, Response response)
+    {
+        Thread authSenderThread = new Thread(() -> {
+            synchronized( output )
+            {
+                try
+                {
+                    ResponseSender.sendResponse(output, response);
+                    output.flush();
+                    logger.info("Авторизационный ответ успешно отправлен.");
+                }
+                catch( IOException e )
+                {
+                    logger.error("Ошибка при отправке ответа авторизации: " + e.getMessage());
+                }
+            }
+        });
 
-public static Connection getDB_Connection()
+        authSenderThread.start();
+
+        try
+        {
+            authSenderThread.join();
+        }
+        catch( InterruptedException e )
+        {
+            logger.error("Поток ожидания был прерван: " + e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static Connection getDB_Connection()
     {
         Scanner credentials = null;
         String username = null;

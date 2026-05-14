@@ -77,6 +77,7 @@ public class Client
             try (SocketChannel channel = connectToServer())
             {
                 NetworkManager networkManager = new NetworkManager(channel);
+
                 while (!exit) // отправляем все запросы в 1 подключении
                 {
                     if (channel != null)
@@ -140,7 +141,7 @@ public class Client
             try
             {
                 socketChannel = SocketChannel.open();
-                socketChannel.configureBlocking(false);
+                socketChannel.configureBlocking(true);
                 socketChannel.connect( new InetSocketAddress(host, port) );
 
                 while( !socketChannel.finishConnect() )

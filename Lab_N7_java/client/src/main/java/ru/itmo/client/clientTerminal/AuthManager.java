@@ -85,7 +85,7 @@ public class AuthManager
         }
         catch( IOException e )
         {
-            console.printError("Не удалось провести авторизацию (ошибка сетевого взаимодействия)");
+            console.printError("Не удалось провести авторизацию (ошибка сетевого взаимодействия): " + e.getMessage());
             return true;
         }
     }
