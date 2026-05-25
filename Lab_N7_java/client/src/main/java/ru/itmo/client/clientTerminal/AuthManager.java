@@ -54,7 +54,8 @@ public class AuthManager
         console.printRequest("Введите пароль: ");
         inputPassword = console.readPassword();
 
-        if (inputLogin.isEmpty() || inputPassword.isEmpty()) {
+        if (inputLogin.trim().isEmpty() || inputPassword.trim().isEmpty())
+        {
             console.printError("Поля не могут быть пустыми!");
             return true;
         }

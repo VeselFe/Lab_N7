@@ -14,22 +14,20 @@ import java.util.List;
 
 public class NetworkManager
 {
-    private final SocketChannel channel;
-    private final ByteBuffer buffer = ByteBuffer.allocate(65536);
-    private final ObjectOutputStream outputStream;
-    private final ObjectInputStream inputStream;
-    private final ByteArrayOutputStream byteStream;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private SocketChannel channel;
 
-    public NetworkManager( SocketChannel channel ) throws IOException
+    public void setChannel(SocketChannel channel) throws IOException
     {
         this.channel = channel;
-        this.byteStream = new ByteArrayOutputStream();
-        this.outputStream = new ObjectOutputStream(byteStream);
+        this.outputStream = new ObjectOutputStream(Channels.newOutputStream(channel));
         this.outputStream.flush();
 
-        sendInitialHeader();
         this.inputStream = new ObjectInputStream(Channels.newInputStream(channel));
     }
+
+    public NetworkManager() {}
 
     public void network( Request request ) throws IOException
     {
@@ -48,14 +46,6 @@ public class NetworkManager
         outputStream.writeObject(request);
         outputStream.flush();
         outputStream.reset();
-
-        byte[] data = byteStream.toByteArray();
-        byteStream.reset();
-
-        ByteBuffer outBuffer = ByteBuffer.wrap(data);
-        while (outBuffer.hasRemaining()) {
-            channel.write(outBuffer);
-        }
     }
 
     public Response getAuthenResponse() throws IOException
@@ -118,45 +108,5 @@ public class NetworkManager
     private Response recieveResponse() throws IOException, ClassNotFoundException
     {
         return ResponseReader.read(this.inputStream);
-//        buffer.clear();
-//        int bytes;
-//
-//        try
-//        {
-//            while( (bytes = channel.read(buffer)) == 0 )
-//            {
-//                System.out.println("Ожидание ответа сервера..");
-//                Thread.sleep(500);
-//            }
-//        }
-//        catch( InterruptedException e )
-//        {
-//            Thread.currentThread().interrupt();
-//            throw new ConnectionException("Ожидание ответа прерывано.");
-//        }
-//
-//        if( bytes == -1 )
-//            throw new ConnectionException("Сервер разорвал соединение");
-//
-//        buffer.flip();
-//
-//        byte[] data = new byte[buffer.remaining()];
-//        buffer.get(data);
-//
-//        try( ByteArrayInputStream byteIStream = new ByteArrayInputStream( data );
-//             ObjectInputStream objectIStream = new ObjectInputStream( byteIStream ) )
-//        {
-//            return ResponseReader.read( objectIStream );
-//        }
-    }
-    public void sendInitialHeader() throws IOException
-    {
-        byte[] header = byteStream.toByteArray();
-        ByteBuffer headerBuf = ByteBuffer.wrap(header);
-        while(headerBuf.hasRemaining())
-        {
-            channel.write(headerBuf);
-        }
-        byteStream.reset();
     }
 }

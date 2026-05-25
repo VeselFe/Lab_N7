@@ -1,22 +1,17 @@
 package ru.itmo.client;
 
-import ru.itmo.client.clientTerminal.AuthManager;
 import ru.itmo.client.clientTerminal.ClientConsoleHandler;
+import ru.itmo.client.clientTerminal.AuthManager;
 import ru.itmo.client.network.NetworkManager;
 import ru.itmo.lab.common.commonNet.Request;
-import ru.itmo.lab.common.commonNet.Response;
+
 import ru.itmo.lab.common.interfaces.IO_Handler;
 import ru.itmo.lab.common.myExceptions.ConnectionException;
 import ru.itmo.lab.common.myExceptions.ResponseException;
-
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
-import java.util.Stack;
 
 public class Client
 {
@@ -27,19 +22,21 @@ public class Client
     public static void main(String[] args)
     {
         boolean startClient = true;
-        ClientConsoleHandler console = new ClientConsoleHandler();
-
         boolean authenticated = false;
-        while( !authenticated && startClient )
+        ClientConsoleHandler console = new ClientConsoleHandler();
+        NetworkManager networkManager = new NetworkManager();
+
+        while( startClient )
         {
-            try( SocketChannel channel = connectToServer() )
+            try( SocketChannel channel = connectToServer(console) )
             {
-                if (channel != null)
+                networkManager.setChannel( channel );
+
+                while( !authenticated && startClient )
                 {
-                    NetworkManager authNetworkManager = new NetworkManager(channel);
-                    AuthManager authManager = new AuthManager(console, authNetworkManager);
+                    AuthManager authManager = new AuthManager(console, networkManager);
                     boolean shouldRetry = authManager.authenticate();
-                    if(!shouldRetry)
+                    if( !shouldRetry )
                     {
                         if( authManager.getLogin() == null )
                         {
@@ -54,86 +51,76 @@ public class Client
                         }
                     }
                 }
-            }
-            catch (IOException e)
-            {
-                console.printError("Не удалось подключиться для авторизации: " + e.getMessage());
-                startClient = false;
-            }
-        }
-
-        if(startClient)
-        {
-            processClient(console);
-        }
-    }
-
-    private static void processClient( ClientConsoleHandler console )
-    {
-        boolean exit = false;
-        console.welcomMessage();
-        while (!exit) // Переподключение к серверу в случае разрыва соединения
-        {
-            try (SocketChannel channel = connectToServer())
-            {
-                NetworkManager networkManager = new NetworkManager(channel);
-
-                while (!exit) // отправляем все запросы в 1 подключении
+                if( startClient )
                 {
-                    if (channel != null)
-                    {
-                        Request request = console.createRequest();
-                        try
-                        {
-                            if (request != null)
-                            {
-                                networkManager.network(request);
-                                String serverResponse = networkManager.getServerResponse();
-                                if (!request.getCommandType().equals("exit"))
-                                {
-                                    console.printInfo(serverResponse);
-                                }
-                                else
-                                {
-                                    console.printInfo("Соединение успешно завершено!");
-                                    exit = true;
-                                }
-                            }
-                            else
-                            {
-                                console.printError("Ошибка генерации запроса. Запрос не отправлен!");
-                            }
-                        }
-                        catch (ConnectionException e)
-                        {
-                            throw new ConnectionException(e.getMessage());
-                        }
-                        catch (ResponseException e)
-                        {
-                            console.printError(e.getMessage());
-                        }
-                        catch (Exception e)
-                        {
-                            console.printError("ошибка при попытке отправки запроса на сервер. " + e.getMessage());
-                        }
-
-                        if (exit) break;
-                    }
+                    processClient(console, networkManager);
+                    startClient = false;
                 }
+            }
+            catch( ConnectionException e )
+            {
+                console.printError("Ошибка соединения: " + e.getMessage());
+            }
+            catch( IOException e )
+            {
+                console.printError("Ошибка подключения: " + e.getMessage());
             }
             catch( Exception e )
             {
-                console.printError("Ошибка при работе приложения: " + e.getMessage());
+                console.printError("Неизвестная ошибка: " + e.getMessage());
+                startClient = false;
             }
         }
         console.close();
     }
 
-    private static SocketChannel connectToServer()
+    private static void processClient( ClientConsoleHandler console, NetworkManager networkManager ) throws IOException, ConnectionException
+    {
+        boolean exit = false;
+        console.welcomMessage();
+
+        while( !exit )
+        {
+            Request request = console.createRequest();
+            try
+            {
+                if (request != null)
+                {
+                    networkManager.network(request);
+                    String serverResponse = networkManager.getServerResponse();
+                    if (!request.getCommandType().equals("exit"))
+                    {
+                        console.printInfo(serverResponse);
+                    }
+                    else
+                    {
+                        console.printInfo("Соединение успешно завершено!");
+                        exit = true;
+                    }
+                }
+                else
+                {
+                    console.printError("Ошибка генерации запроса. Запрос не отправлен!");
+                }
+            }
+            catch (ResponseException e)
+            {
+                console.printError(e.getMessage());
+            }
+            catch (Exception e)
+            {
+                throw new IOException("ошибка при попытке отправки запроса на сервер. " + e.getMessage());
+            }
+
+            if (exit) break;
+        }
+    }
+
+    private static SocketChannel connectToServer( IO_Handler console )
     {
         SocketChannel socketChannel = null;
         boolean conection = false;
-        ClientConsoleHandler console = new ClientConsoleHandler();
+
         console.printInfo("Клиент подключен к серверу " + host + ":" + port);
 
         while( !conection )

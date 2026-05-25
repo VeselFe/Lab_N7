@@ -142,7 +142,6 @@ public class Server
                     {
                         Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
                         authResponseHandler(output, response);
-                        break;
                     }
                     else
                     {
