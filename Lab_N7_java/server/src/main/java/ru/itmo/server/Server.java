@@ -123,11 +123,13 @@ public class Server
     public static void handleClient( Socket clientSocket, CommandProccessor proccessor, Connection dbConnection )
     {
         logger.info("Потоки ввода-вывода инициализированы.");
+        UserDAO userDAO = new UserDAO(dbConnection);
         try
         {
             ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
             output.flush();
             ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+
             while( !clientSocket.isClosed() )
             {
                 try
@@ -136,20 +138,42 @@ public class Server
                     // читаем запрос
                     Request request = RequestReader.read(input);
                     logger.info("Получен запрос: " + request.getCommandType());
-                    // обрабатываем
+                    Future<Response> responseFuture = processorPool.submit( () -> proccessor.ProcessRequest(request, userDAO) );
 
-                    if (request.getCommandType().equals("login") || request.getCommandType().equals("register"))
-                    {
-                        Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
-                        authResponseHandler(output, response);
-                    }
-                    else
-                    {
-                        processorPool.execute(() -> {
-                            Response response = proccessor.ProcessRequest(request, new UserDAO(dbConnection));
-                            responseHandler(output, response);
-                        });
-                    }
+                    Thread responseThread = new Thread(() -> {
+                        try
+                        {
+                            Response response = responseFuture.get();
+                            logger.info("Запрос обработан!");
+                            logger.info("<Начало запроса>");
+                            logger.info("Success: " + response.isSuccess() + ";");
+                            logger.info("Message: " + response.getMessage() + ";");
+                            logger.info("<Конец запроса>");
+                            synchronized( output )
+                            {
+                                // отправляем обратно ответ
+                                ResponseSender.sendResponse(output, response);
+                                output.flush();
+                                output.reset();
+                                logger.info("Ответ отправлен!\n");
+                            }
+                        }
+                        catch( InterruptedException e )
+                        {
+                            logger.error("Поток отправки ответа прерван.");
+                            Thread.currentThread().interrupt();
+                        }
+                        catch( ExecutionException e )
+                        {
+                            logger.error("Ошибка при отправке ответа: " + e.getMessage());
+                        }
+                        catch( IOException e )
+                        {
+                            logger.error("Ошибка при сетевой отправке ответа: " + e.getMessage());
+                        }
+
+                    });
+                    responseThread.start();
                 }
                 catch (ClassNotFoundException e) {
                     logger.error("Некорректные полученные данные");
@@ -186,61 +210,6 @@ public class Server
                 logger.error("Ошибка при финальном закрытии сокета: " + e.getMessage());
             }
             logger.info("Ресурсы клиента закрыты.");
-        }
-    }
-    private static void responseHandler(ObjectOutputStream output, Response response)
-    {
-        logger.info("Запрос обработан!");
-        logger.info("<Начало запроса>");
-        logger.info("Success: " + response.isSuccess() + ";");
-        logger.info("Message: " + response.getMessage() + ";");
-        logger.info("<Конец запроса>");
-
-        Thread responseThread = new Thread(() -> {
-            synchronized( output )
-            {
-                try
-                {
-                    // отправляем обратно ответ
-                    ResponseSender.sendResponse(output, response);
-                    logger.info("Ответ отправлен!\n");
-                }
-                catch( IOException e )
-                {
-                    logger.error("Ошибка при отправке ответа: " + e.getMessage());
-                }
-            }
-        });
-        responseThread.start();
-    }
-    private static void authResponseHandler(ObjectOutputStream output, Response response)
-    {
-        Thread authSenderThread = new Thread(() -> {
-            synchronized( output )
-            {
-                try
-                {
-                    ResponseSender.sendResponse(output, response);
-                    output.flush();
-                    logger.info("Авторизационный ответ успешно отправлен.");
-                }
-                catch( IOException e )
-                {
-                    logger.error("Ошибка при отправке ответа авторизации: " + e.getMessage());
-                }
-            }
-        });
-
-        authSenderThread.start();
-
-        try
-        {
-            authSenderThread.join();
-        }
-        catch( InterruptedException e )
-        {
-            logger.error("Поток ожидания был прерван: " + e.getMessage());
-            Thread.currentThread().interrupt();
         }
     }
 
