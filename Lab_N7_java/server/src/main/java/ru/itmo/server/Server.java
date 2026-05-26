@@ -21,6 +21,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
@@ -126,17 +127,24 @@ public class Server
         UserDAO userDAO = new UserDAO(dbConnection);
         try
         {
-            ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
-            output.flush();
-            ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
+            DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+            OutputStream output = clientSocket.getOutputStream();
+            //ObjectOutputStream output = new ObjectOutputStream(clientSocket.getOutputStream());
+            //output.flush();
+            //ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
 
             while( !clientSocket.isClosed() )
             {
                 try
                 {
+                    int requestLength = input.readInt();
+
+                    byte[] requestBytes = new byte[requestLength];
+                    input.readFully(requestBytes);
+
                     // логика обработки поступившей информации
                     // читаем запрос
-                    Request request = RequestReader.read(input);
+                    Request request = RequestReader.read(requestBytes);
                     logger.info("Получен запрос: " + request.getCommandType());
                     Future<Response> responseFuture = processorPool.submit( () -> proccessor.ProcessRequest(request, userDAO) );
 
@@ -149,13 +157,13 @@ public class Server
                             logger.info("Success: " + response.isSuccess() + ";");
                             logger.info("Message: " + response.getMessage() + ";");
                             logger.info("<Конец запроса>");
+
                             synchronized( output )
                             {
                                 // отправляем обратно ответ
                                 ResponseSender.sendResponse(output, response);
-                                output.flush();
-                                output.reset();
                                 logger.info("Ответ отправлен!\n");
+                                logger.debug("Длина пакета: " + ResponseSender.getResponseLength());
                             }
                         }
                         catch( InterruptedException e )
@@ -171,22 +179,30 @@ public class Server
                         {
                             logger.error("Ошибка при сетевой отправке ответа: " + e.getMessage());
                         }
-
                     });
                     responseThread.start();
                 }
-                catch (ClassNotFoundException e) {
+                catch( ClassNotFoundException e )
+                {
                     logger.error("Некорректные полученные данные");
-                } catch (EOFException e) {
+                }
+                catch( EOFException e )
+                {
                     logger.info("Клиент завершил сессию.");
                     break;
-                } catch (SocketException e) {
+                }
+                catch( SocketException e )
+                {
                     logger.error("Соединение с клиентом потеряно.");
                     break;
-                } catch (IOException e) {
+                }
+                catch (IOException e )
+                {
                     logger.error("Ошибка потоков ввода-вывода: " + e.getMessage());
                     break;
-                } catch (Exception e) {
+                }
+                catch( Exception e )
+                {
                     logger.error("Неизвестная ошибка при обработке запроса: " + e.getMessage());
                 }
             }

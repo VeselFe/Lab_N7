@@ -14,7 +14,6 @@ import java.util.List;
 public class NetworkManager
 {
     private SocketChannel channel;
-    private final ByteBuffer buffer = ByteBuffer.allocate(65536);
 
     public NetworkManager() {}
 
@@ -48,11 +47,14 @@ public class NetworkManager
         }
 
         byte[] data = byteOutputStream.toByteArray();
-        ByteBuffer outputBuffer = ByteBuffer.wrap(data);
+        ByteBuffer buffer = ByteBuffer.allocate(4 + data.length);
+        buffer.putInt(data.length);
+        buffer.put(data);
+        buffer.flip();
 
-        while (outputBuffer.hasRemaining())
+        while (buffer.hasRemaining())
         {
-            channel.write(outputBuffer);
+            channel.write(buffer);
         }
     }
 
@@ -116,60 +118,46 @@ public class NetworkManager
 
     private Response recieveResponse() throws IOException, ClassNotFoundException
     {
-        buffer.clear();
-        int ReadData;
-        try
+        ByteBuffer bufferLength = ByteBuffer.allocate(4);
+        while( bufferLength.hasRemaining() )
         {
-            while( (ReadData = channel.read(buffer)) == 0 )
-            {
-                Thread.sleep(50);
-            }
+            int bytes = channel.read(bufferLength);
+            checkBytes(bytes);
         }
-        catch (InterruptedException e)
+        bufferLength.flip();
+        int objectLength = bufferLength.getInt();
+
+        ByteBuffer objectBuffer = ByteBuffer.allocate(objectLength);
+        while( objectBuffer.hasRemaining() )
         {
-            Thread.currentThread().interrupt();
-            throw new ConnectionException("Ожидание ответа прервано.");
-        }
-        if( ReadData == -1 )
-        {
-            throw new IOException("Соединение разорвано сервером.");
+            int bytesRead = channel.read(objectBuffer);
+            checkBytes(bytesRead);
         }
 
-        int attemptsWithoutData = 0;
-        while( attemptsWithoutData < 3 )
-        {
-            int dopBytes = channel.read(buffer);
-            if (dopBytes > 0)
-            {
-                attemptsWithoutData = 0;
-            }
-            else if (dopBytes == 0)
-            {
-                try
-                {
-                    Thread.sleep(15); // Даем 15 мс сети на ожидание следующего TCP-пакета
-                }
-                catch( InterruptedException ignored ) {}
-                attemptsWithoutData++;
-            }
-            else
-            {
-                break;
-            }
-        }
-        if( ReadData == -1 )
-        {
-            throw new IOException("Соединение разорвано сервером.");
-        }
+        objectBuffer.flip();
+        byte[] data = new byte[objectBuffer.remaining()];
+        objectBuffer.get(data);
 
-        buffer.flip();
-        byte[] data = new byte[buffer.remaining()];
-        buffer.get(data);
-
-        try ( ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data); // data -> objectBuffer.array()
+        try ( ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data);
               ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream) )
         {
             return (Response) objectInputStream.readObject();
+        }
+    }
+
+    private void checkBytes(int bytes) throws IOException
+    {
+        if( bytes == -1 )
+        {
+            throw new IOException("Соединение разорвано сервером.");
+        }
+        if( bytes == 0 )
+        {
+            try
+            {
+                Thread.sleep(50);
+            }
+            catch (InterruptedException e) {}
         }
     }
 }
