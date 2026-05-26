@@ -1,7 +1,5 @@
 package ru.itmo.client.network;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.itmo.lab.common.commonNet.Request;
 import ru.itmo.lab.common.commonNet.Response;
 import ru.itmo.lab.common.model.StudyGroup;
@@ -10,13 +8,8 @@ import ru.itmo.lab.common.myExceptions.ResponseException;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public class NetworkManager
 {
@@ -55,10 +48,6 @@ public class NetworkManager
         }
 
         byte[] data = byteOutputStream.toByteArray();
-//        ByteBuffer buffer = ByteBuffer.allocate(4 + data.length);
-//        buffer.putInt(data.length);
-//        buffer.put(data);
-//        buffer.flip();
         ByteBuffer outputBuffer = ByteBuffer.wrap(data);
 
         while (outputBuffer.hasRemaining())
@@ -127,23 +116,6 @@ public class NetworkManager
 
     private Response recieveResponse() throws IOException, ClassNotFoundException
     {
-//        ByteBuffer buffer = ByteBuffer.allocate(4);
-//        while (buffer.hasRemaining())
-//        {
-//            int bytes = channel.read(buffer);
-//            checkBytes(bytes);
-//        }
-//        buffer.flip();
-//        int objectLength = buffer.getInt();
-//
-//        ByteBuffer objectBuffer = ByteBuffer.allocate(objectLength);
-//        while (objectBuffer.hasRemaining())
-//        {
-//            int bytesRead = channel.read(objectBuffer);
-//            checkBytes(bytesRead);
-//        }
-//
-//        objectBuffer.flip();
         buffer.clear();
         int ReadData;
         try
@@ -158,7 +130,10 @@ public class NetworkManager
             Thread.currentThread().interrupt();
             throw new ConnectionException("Ожидание ответа прервано.");
         }
-        checkBytes(ReadData);
+        if( ReadData == -1 )
+        {
+            throw new IOException("Соединение разорвано сервером.");
+        }
 
         int attemptsWithoutData = 0;
         while( attemptsWithoutData < 3 )
@@ -182,7 +157,10 @@ public class NetworkManager
                 break;
             }
         }
-        checkBytes(ReadData);
+        if( ReadData == -1 )
+        {
+            throw new IOException("Соединение разорвано сервером.");
+        }
 
         buffer.flip();
         byte[] data = new byte[buffer.remaining()];
@@ -193,21 +171,5 @@ public class NetworkManager
         {
             return (Response) objectInputStream.readObject();
         }
-    }
-
-    private void checkBytes(int bytes) throws IOException
-    {
-        if( bytes == -1 )
-        {
-            throw new IOException("Соединение разорвано сервером.");
-        }
-//        if( bytes == 0 )
-//        {
-//            try
-//            {
-//                Thread.sleep(50);
-//            }
-//            catch (InterruptedException e) {}
-//        }
     }
 }
