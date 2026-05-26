@@ -18,31 +18,38 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-public class NetworkManager {
+public class NetworkManager
+{
     private SocketChannel channel;
     private final ByteBuffer buffer = ByteBuffer.allocate(65536);
 
-    public NetworkManager() {
-    }
+    public NetworkManager() {}
 
-    public void setChannel(SocketChannel channel) throws IOException {
+    public void setChannel( SocketChannel channel ) throws IOException
+    {
         this.channel = channel;
         channel.configureBlocking(false);
     }
 
-    public void network(Request request) throws IOException {
-        if (channel == null)
+    public void network( Request request ) throws IOException
+    {
+        if( channel == null )
             throw new IOException("Сетевой канал не определен!");
-        try {
+        try
+        {
             sendRequest(request);
-        } catch (IOException e) {
+        }
+        catch (IOException e)
+        {
             throw new ConnectionException("Сервер разрвал соединение.");
         }
     }
 
-    private void sendRequest(Request request) throws IOException {
+    private void sendRequest( Request request ) throws IOException
+    {
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(byteOutputStream)) {
+        try( ObjectOutputStream outputStream = new ObjectOutputStream(byteOutputStream) )
+        {
             outputStream.writeObject(request);
             outputStream.flush();
         }
@@ -60,7 +67,8 @@ public class NetworkManager {
         }
     }
 
-    public Response getAuthenResponse() throws IOException {
+    public Response getAuthenResponse() throws IOException
+    {
         try
         {
             Response serverResponse = recieveResponse();
@@ -76,35 +84,49 @@ public class NetworkManager {
         }
     }
 
-    public String getServerResponse() throws IOException, ResponseException {
-        try {
+    public String getServerResponse() throws IOException, ResponseException
+    {
+        try
+        {
             Response serverResponse = recieveResponse();
             boolean success = serverResponse.isSuccess();
             String responseMessage = serverResponse.getMessage();
             List<StudyGroup> responeCollection = serverResponse.getCollection();
             StringBuilder printedCollection = new StringBuilder();
-            if (serverResponse.getCollection() != null) {
+            if( serverResponse.getCollection() != null )
+            {
                 printedCollection.append("\nКоллекция после выполнения команды:\n");
-                for (StudyGroup element : responeCollection) {
+                for (StudyGroup element : responeCollection)
+                {
                     printedCollection.append(element.getInformation() + "\n");
                 }
             }
 
-            if (success) {
+            if (success)
+            {
                 return "Команда выполнена успешно:\n___________________\n" + responseMessage + "\n___________________\n" + printedCollection;
-            } else {
+            }
+            else
+            {
                 return "Возникла ошибка при выполнении команды:\n___________________\n" + responseMessage + "\n___________________\n" + printedCollection;
             }
-        } catch (ClassNotFoundException e) {
+        }
+        catch( ClassNotFoundException e )
+        {
             throw new ResponseException("Не обработался ответ: " + e.getMessage());
-        } catch (IOException e) {
+        }
+        catch( IOException e )
+        {
             throw new IOException("Не обработался ответ: " + e.getMessage());
-        } catch (Exception e) {
+        }
+        catch( Exception e )
+        {
             throw new ResponseException("Неизвестная ошибка при обработке запроса: " + e.getMessage());
         }
     }
 
-    private Response recieveResponse() throws IOException, ClassNotFoundException {
+    private Response recieveResponse() throws IOException, ClassNotFoundException
+    {
 //        ByteBuffer buffer = ByteBuffer.allocate(4);
 //        while (buffer.hasRemaining())
 //        {
@@ -124,18 +146,22 @@ public class NetworkManager {
 //        objectBuffer.flip();
         buffer.clear();
         int ReadData;
-        try {
-            while ((ReadData = channel.read(buffer)) == 0) {
+        try
+        {
+            while( (ReadData = channel.read(buffer)) == 0 )
+            {
                 Thread.sleep(50);
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             Thread.currentThread().interrupt();
             throw new ConnectionException("Ожидание ответа прервано.");
         }
         checkBytes(ReadData);
 
         int attemptsWithoutData = 0;
-        while (attemptsWithoutData < 3)
+        while( attemptsWithoutData < 3 )
         {
             int dopBytes = channel.read(buffer);
             if (dopBytes > 0)
@@ -162,14 +188,17 @@ public class NetworkManager {
         byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
 
-        try (ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data); // data -> objectBuffer.array()
-             ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream)) {
+        try ( ByteArrayInputStream byteInputStream = new ByteArrayInputStream(data); // data -> objectBuffer.array()
+              ObjectInputStream objectInputStream = new ObjectInputStream(byteInputStream) )
+        {
             return (Response) objectInputStream.readObject();
         }
     }
 
-    private void checkBytes(int bytes) throws IOException {
-        if (bytes == -1) {
+    private void checkBytes(int bytes) throws IOException
+    {
+        if( bytes == -1 )
+        {
             throw new IOException("Соединение разорвано сервером.");
         }
 //        if( bytes == 0 )
