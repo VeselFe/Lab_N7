@@ -128,7 +128,7 @@ public class Client
             try
             {
                 socketChannel = SocketChannel.open();
-                socketChannel.configureBlocking(true);
+                socketChannel.configureBlocking(false);
                 socketChannel.connect( new InetSocketAddress(host, port) );
 
                 while( !socketChannel.finishConnect() )
